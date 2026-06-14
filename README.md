@@ -6,6 +6,12 @@
 
 Welcome to **Voice Recorder**! A simple, beautiful, and powerful voice recording app for Android. Designed to be clean and easy to use, Voice Recorder helps you capture your ideas, meetings, and memories with professional quality.
 
+## 📥 Download
+
+[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/sudo-py-dev/VoiceRecorder/releases/latest/download/app-release.apk)
+
+You can also find all versions on our [GitHub Releases](https://github.com/sudo-py-dev/VoiceRecorder/releases) page.
+
 ---
 
 ## ✨ Key Features

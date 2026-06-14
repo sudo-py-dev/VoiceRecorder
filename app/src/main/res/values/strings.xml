@@ -48,6 +48,7 @@
     <string name="error_play_failed">Failed to play audio</string>
     <string name="error_delete_failed">Failed to delete recording</string>
     <string name="error_rename_failed">Failed to rename recording</string>
+    <string name="error_save_failed">Failed to save recording</string>
     <string name="default_recording_title_prefix">Recording_</string>
     
     <string name="setting_format">Recording Format</string>

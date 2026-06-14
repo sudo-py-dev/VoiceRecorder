@@ -48,6 +48,7 @@
     <string name="error_play_failed">Error al reproducir audio</string>
     <string name="error_delete_failed">Error al eliminar la grabación</string>
     <string name="error_rename_failed">Error al renombrar la grabación</string>
+    <string name="error_save_failed">Error al guardar la grabación</string>
     <string name="default_recording_title_prefix">Grabacion_</string>
     
     <string name="setting_format">Formato de grabación</string>

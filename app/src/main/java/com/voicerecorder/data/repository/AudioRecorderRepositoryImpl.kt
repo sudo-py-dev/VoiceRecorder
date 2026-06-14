@@ -40,6 +40,7 @@ class AudioRecorderRepositoryImpl(
 
     private var durationMs = 0L
     private var pcmDataLength = 0L
+    private var currentMaxAmplitude = 0
     private val amplitudeHistory = mutableListOf<Float>()
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -60,6 +61,7 @@ class AudioRecorderRepositoryImpl(
             file.delete()
         }
 
+        currentMaxAmplitude = 0
         return if (format == AudioFormat.WAV) {
             startWavRecording(outputPath, quality)
         } else {
@@ -216,14 +218,17 @@ class AudioRecorderRepositoryImpl(
                             var maxAmp = 0
                             for (i in 0 until read) {
                                 val s = buffer[i]
-                                if (s > maxAmp) maxAmp = s.toInt()
+                                val absS = if (s < 0) -s.toInt() else s.toInt()
+                                if (absS > maxAmp) maxAmp = absS
                                 byteBuffer[i * 2] = (s.toInt() and 0x00FF).toByte()
                                 byteBuffer[i * 2 + 1] = ((s.toInt() and 0xFF00) shr 8).toByte()
                             }
+                            currentMaxAmplitude = maxAmp
                             outputStream.write(byteBuffer)
                             pcmDataLength += byteBuffer.size
                         }
                     } else if (state is RecordingState.Paused) {
+                        currentMaxAmplitude = 0
                         delay(100)
                     } else {
                         break
@@ -343,10 +348,7 @@ class AudioRecorderRepositoryImpl(
                             if (mediaRecorder != null) {
                                 mediaRecorder?.maxAmplitude ?: 0
                             } else if (audioRecord != null) {
-                                // We could calculate amplitude from PCM buffer, but for simplicity:
-                                (0..32767).random() / 2 // Mocking for now or calculate from buffer
-                                // Actually, let's keep it 0 or calc from buffer if we want to be precise
-                                0 
+                                currentMaxAmplitude
                             } else {
                                 0
                             }

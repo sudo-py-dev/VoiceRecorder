@@ -7,7 +7,9 @@ import android.provider.MediaStore
 import com.voicerecorder.data.local.RecordingDao
 import com.voicerecorder.data.local.toDomain
 import com.voicerecorder.data.local.toEntity
+import com.voicerecorder.domain.model.AudioFormat
 import com.voicerecorder.domain.model.AudioRecording
+import com.voicerecorder.domain.model.SaveLocation
 import com.voicerecorder.domain.repository.RecordingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,11 +33,128 @@ class RecordingRepositoryImpl(
         return dao.insertRecording(recording.toEntity())
     }
 
+    override suspend fun saveRecording(
+        tempFile: File,
+        title: String,
+        format: AudioFormat,
+        durationMs: Long,
+        saveLocation: SaveLocation,
+        publicFolderUri: String
+    ): Result<AudioRecording> {
+        return runCatching {
+            var finalPath = tempFile.absolutePath
+            val size = tempFile.length()
+
+            if (saveLocation == SaveLocation.PUBLIC) {
+                var uri: Uri? = null
+                if (publicFolderUri.isNotEmpty()) {
+                    uri = saveToSafDirectory(tempFile, publicFolderUri, tempFile.name, format.mimeType)
+                }
+                if (uri == null) {
+                    uri = saveToMediaStore(tempFile, title, format.mimeType)
+                }
+                if (uri != null) {
+                    finalPath = uri.toString()
+                }
+            } else {
+                val outputDir = context.getExternalFilesDir(null) ?: context.filesDir
+                val destFile = File(outputDir, tempFile.name)
+                if (tempFile.renameTo(destFile)) {
+                    finalPath = destFile.absolutePath
+                }
+            }
+
+            val recording = AudioRecording(
+                title = title,
+                filePath = finalPath,
+                durationMs = durationMs,
+                fileSize = size,
+                timestamp = System.currentTimeMillis(),
+            )
+            val id = insertRecording(recording)
+            recording.copy(id = id)
+        }
+    }
+
+    private fun saveToSafDirectory(
+        srcFile: File,
+        treeUriStr: String,
+        fileName: String,
+        mimeType: String,
+    ): Uri? {
+        return try {
+            val treeUri = Uri.parse(treeUriStr)
+            val documentId = DocumentsContract.getTreeDocumentId(treeUri)
+            val parentDocumentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+
+            val newDocumentUri = DocumentsContract.createDocument(
+                context.contentResolver,
+                parentDocumentUri,
+                mimeType,
+                fileName
+            ) ?: return null
+
+            context.contentResolver.openOutputStream(newDocumentUri)?.use { out ->
+                srcFile.inputStream().use { input ->
+                    input.copyTo(out)
+                }
+            }
+
+            srcFile.delete()
+            newDocumentUri
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun saveToMediaStore(
+        file: File,
+        title: String,
+        mimeType: String,
+    ): Uri? {
+        val contentValues = android.content.ContentValues().apply {
+            put(MediaStore.Audio.Media.DISPLAY_NAME, file.name)
+            put(MediaStore.Audio.Media.TITLE, title)
+            put(MediaStore.Audio.Media.MIME_TYPE, mimeType)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/VoiceRecorder")
+                put(MediaStore.Audio.Media.IS_PENDING, 1)
+            }
+        }
+
+        val resolver = context.contentResolver
+        val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val uri = resolver.insert(collection, contentValues) ?: return null
+
+        return try {
+            resolver.openOutputStream(uri)?.use { out ->
+                file.inputStream().use { input ->
+                    input.copyTo(out)
+                }
+            }
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                contentValues.clear()
+                contentValues.put(MediaStore.Audio.Media.IS_PENDING, 0)
+                resolver.update(uri, contentValues, null, null)
+            }
+
+            file.delete()
+            uri
+        } catch (e: Exception) {
+            resolver.delete(uri, null, null)
+            null
+        }
+    }
+
     override suspend fun renameRecording(
         id: Long,
         newTitle: String,
     ): Result<Unit> {
         return runCatching {
+            val sanitizedTitle = newTitle.replace(Regex("[\\\\/:*?\"<>|]"), "_").take(200)
+            if (sanitizedTitle.isBlank()) throw IllegalArgumentException("Title cannot be empty after sanitization")
+
             val entity = dao.getRecordingByIdSuspend(id) ?: throw NoSuchElementException("Recording not found")
             val filePath = entity.filePath
 
@@ -46,7 +165,7 @@ class RecordingRepositoryImpl(
 
                 // Try renaming via DocumentsContract (for SAF directory files)
                 try {
-                    val renamedUri = DocumentsContract.renameDocument(context.contentResolver, uri, newTitle)
+                    val renamedUri = DocumentsContract.renameDocument(context.contentResolver, uri, sanitizedTitle)
                     if (renamedUri != null) {
                         updatedPath = renamedUri.toString()
                         renamed = true
@@ -59,7 +178,7 @@ class RecordingRepositoryImpl(
                 if (!renamed) {
                     try {
                         val values = android.content.ContentValues().apply {
-                            put(MediaStore.Audio.Media.TITLE, newTitle)
+                            put(MediaStore.Audio.Media.TITLE, sanitizedTitle)
                             
                             // Retrieve the extension to construct new display name
                             val oldDisplayName = context.contentResolver.query(
@@ -70,7 +189,7 @@ class RecordingRepositoryImpl(
                                 if (cursor.moveToFirst()) cursor.getString(0) else null
                             }
                             val ext = oldDisplayName?.substringAfterLast('.', "") ?: "m4a"
-                            val newDisplayName = if (ext.isNotEmpty()) "$newTitle.$ext" else newTitle
+                            val newDisplayName = if (ext.isNotEmpty()) "$sanitizedTitle.$ext" else sanitizedTitle
                             put(MediaStore.Audio.Media.DISPLAY_NAME, newDisplayName)
                         }
                         context.contentResolver.update(uri, values, null, null)
@@ -79,28 +198,28 @@ class RecordingRepositoryImpl(
                     }
                 }
 
-                val updatedEntity = entity.copy(title = newTitle, filePath = updatedPath)
+                val updatedEntity = entity.copy(title = sanitizedTitle, filePath = updatedPath)
                 dao.insertRecording(updatedEntity)
             } else {
                 val oldFile = File(filePath)
                 if (oldFile.exists()) {
                     val directory = oldFile.parentFile
                     val extension = oldFile.extension
-                    val newFile = File(directory, "$newTitle.$extension")
+                    val newFile = File(directory, "$sanitizedTitle.$extension")
 
                     if (oldFile.renameTo(newFile)) {
                         val updatedEntity =
                             entity.copy(
-                                title = newTitle,
+                                title = sanitizedTitle,
                                 filePath = newFile.absolutePath,
                             )
                         dao.insertRecording(updatedEntity)
                     } else {
-                        val updatedEntity = entity.copy(title = newTitle)
+                        val updatedEntity = entity.copy(title = sanitizedTitle)
                         dao.insertRecording(updatedEntity)
                     }
                 } else {
-                    val updatedEntity = entity.copy(title = newTitle)
+                    val updatedEntity = entity.copy(title = sanitizedTitle)
                     dao.insertRecording(updatedEntity)
                 }
             }
@@ -109,23 +228,23 @@ class RecordingRepositoryImpl(
 
     override suspend fun deleteRecording(id: Long): Result<Unit> {
         return runCatching {
-            val entity = dao.getRecordingByIdSuspend(id)
-            if (entity != null) {
-                val filePath = entity.filePath
-                if (filePath.startsWith("content://")) {
-                    try {
-                        context.contentResolver.delete(Uri.parse(filePath), null, null)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    val file = File(filePath)
-                    if (file.exists()) {
-                        file.delete()
+            val entity = dao.getRecordingByIdSuspend(id) ?: return Result.success(Unit)
+            val filePath = entity.filePath
+            if (filePath.startsWith("content://")) {
+                try {
+                    context.contentResolver.delete(Uri.parse(filePath), null, null)
+                } catch (e: Exception) {
+                    // It might be already deleted or permission revoked, proceed with DB deletion
+                }
+            } else {
+                val file = File(filePath)
+                if (file.exists()) {
+                    if (!file.delete()) {
+                        // Log failure or handle accordingly if needed, but we proceed with DB deletion
                     }
                 }
-                dao.deleteRecording(id)
             }
+            dao.deleteRecording(id)
         }
     }
 }

@@ -13,6 +13,7 @@ import com.voicerecorder.domain.model.SaveLocation
 import com.voicerecorder.domain.repository.AudioRecorderRepository
 import com.voicerecorder.domain.repository.PreferencesRepository
 import com.voicerecorder.domain.repository.RecordingRepository
+
 import com.voicerecorder.presentation.service.RecordingService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -140,125 +141,27 @@ class RecorderViewModel(
         activeTitle = null
 
         val file = File(path)
-        if (file.exists()) {
-            if (file.length() > 0) {
-                val size = file.length()
-                val duration = getFileDurationMs(file)
-                val format = preferencesRepository.audioFormat.first()
-                val saveLocation = preferencesRepository.saveLocation.first()
+        if (file.exists() && file.length() > 0) {
+            val format = preferencesRepository.audioFormat.first()
+            val saveLocation = preferencesRepository.saveLocation.first()
+            val publicFolderUri = preferencesRepository.publicFolderUri.first()
+            
+            val duration = getFileDurationMs(file)
 
-                var finalPath = path
-
-                if (saveLocation == SaveLocation.PUBLIC) {
-                    val publicUriStr = preferencesRepository.publicFolderUri.first()
-                    var uri: android.net.Uri? = null
-                    if (publicUriStr.isNotEmpty()) {
-                        uri = saveToSafDirectory(application, file, publicUriStr, file.name, format.mimeType)
-                    }
-                    if (uri == null) {
-                        uri = saveToMediaStore(application, file, title, format.mimeType)
-                    }
-                    if (uri != null) {
-                        finalPath = uri.toString()
-                    }
-                } else {
-                    val outputDir = application.getExternalFilesDir(null) ?: application.filesDir
-                    val destFile = File(outputDir, file.name)
-                    if (file.renameTo(destFile)) {
-                        finalPath = destFile.absolutePath
-                    } else {
-                        finalPath = file.absolutePath
-                    }
-                }
-
-                val recording =
-                    AudioRecording(
-                        title = title,
-                        filePath = finalPath,
-                        durationMs = duration,
-                        fileSize = size,
-                        timestamp = System.currentTimeMillis(),
-                    )
-                recordingRepository.insertRecording(recording)
+            recordingRepository.saveRecording(
+                tempFile = file,
+                title = title,
+                format = format,
+                durationMs = duration,
+                saveLocation = saveLocation,
+                publicFolderUri = publicFolderUri
+            ).onSuccess {
                 _saveSuccess.value = application.getString(R.string.recording_completed, title)
-            } else {
-                file.delete()
+            }.onFailure {
+                _saveError.value = it.message ?: application.getString(R.string.error_save_failed)
             }
-        }
-    }
-
-    private fun saveToSafDirectory(
-        context: Context,
-        srcFile: File,
-        treeUriStr: String,
-        fileName: String,
-        mimeType: String,
-    ): android.net.Uri? {
-        return try {
-            val treeUri = android.net.Uri.parse(treeUriStr)
-            val documentId = android.provider.DocumentsContract.getTreeDocumentId(treeUri)
-            val parentDocumentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
-
-            val newDocumentUri = android.provider.DocumentsContract.createDocument(
-                context.contentResolver,
-                parentDocumentUri,
-                mimeType,
-                fileName
-            ) ?: return null
-
-            context.contentResolver.openOutputStream(newDocumentUri)?.use { out ->
-                srcFile.inputStream().use { input ->
-                    input.copyTo(out)
-                }
-            }
-
-            srcFile.delete()
-            newDocumentUri
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    private fun saveToMediaStore(
-        context: Context,
-        file: File,
-        title: String,
-        mimeType: String,
-    ): android.net.Uri? {
-        val contentValues =
-            android.content.ContentValues().apply {
-                put(android.provider.MediaStore.Audio.Media.DISPLAY_NAME, file.name)
-                put(android.provider.MediaStore.Audio.Media.TITLE, title)
-                put(android.provider.MediaStore.Audio.Media.MIME_TYPE, mimeType)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    put(android.provider.MediaStore.Audio.Media.RELATIVE_PATH, "Music/VoiceRecorder")
-                    put(android.provider.MediaStore.Audio.Media.IS_PENDING, 1)
-                }
-            }
-
-        val resolver = context.contentResolver
-        val collection = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val uri = resolver.insert(collection, contentValues) ?: return null
-
-        return try {
-            resolver.openOutputStream(uri)?.use { out ->
-                file.inputStream().use { input ->
-                    input.copyTo(out)
-                }
-            }
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                contentValues.clear()
-                contentValues.put(android.provider.MediaStore.Audio.Media.IS_PENDING, 0)
-                resolver.update(uri, contentValues, null, null)
-            }
-
+        } else {
             file.delete()
-            uri
-        } catch (e: Exception) {
-            resolver.delete(uri, null, null)
-            null
         }
     }
 

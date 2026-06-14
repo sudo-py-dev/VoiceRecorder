@@ -48,6 +48,7 @@
     <string name="error_play_failed">Audio konnte nicht abgespielt werden</string>
     <string name="error_delete_failed">Aufnahme konnte nicht gelöscht werden</string>
     <string name="error_rename_failed">Aufnahme konnte nicht umbenannt werden</string>
+    <string name="error_save_failed">Aufnahme konnte nicht gespeichert werden</string>
     <string name="default_recording_title_prefix">Aufnahme_</string>
     
     <string name="setting_format">Aufnahmeformat</string>

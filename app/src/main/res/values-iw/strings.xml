@@ -28,7 +28,6 @@
     <string name="action_grant">הענק הרשאות</string>
     
     <string name="notification_title">הקלטה פעילה</string>
-    <string name="notification_text">ההקלטה מתבצעת ברקע. לחץ כדי לחזור לאפליקציה.</string>
     
     <string name="setting_theme">עיצוב</string>
     <string name="setting_language">שפה</string>

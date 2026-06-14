@@ -28,7 +28,6 @@
     <string name="action_grant">Conceder permisos</string>
     
     <string name="notification_title">Grabación activa</string>
-    <string name="notification_text">Grabando en segundo plano. Toca para volver a la aplicación.</string>
     
     <string name="setting_theme">Tema</string>
     <string name="setting_language">Idioma</string>

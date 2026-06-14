@@ -28,7 +28,6 @@
     <string name="action_grant">Accorder les autorisations</string>
     
     <string name="notification_title">Enregistrement actif</string>
-    <string name="notification_text">Enregistrement en arrière-plan. Appuyez pour revenir à l\'application.</string>
     
     <string name="setting_theme">Thème</string>
     <string name="setting_language">Langue</string>

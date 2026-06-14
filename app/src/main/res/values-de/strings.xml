@@ -28,7 +28,6 @@
     <string name="action_grant">Berechtigungen erteilen</string>
     
     <string name="notification_title">Aufnahme läuft</string>
-    <string name="notification_text">Aufnahme im Hintergrund. Tippen, um zur App zurückzukehren.</string>
     
     <string name="setting_theme">Design</string>
     <string name="setting_language">Sprache</string>

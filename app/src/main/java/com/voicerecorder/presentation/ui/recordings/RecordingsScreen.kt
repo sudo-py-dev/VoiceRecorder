@@ -35,20 +35,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -75,9 +70,11 @@ import com.voicerecorder.presentation.ui.recordings.components.PlayerController
 import com.voicerecorder.presentation.ui.util.FormatUtils
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecordingsScreen(viewModel: RecordingsViewModel) {
+fun RecordingsScreen(
+    viewModel: RecordingsViewModel,
+    snackbarHostState: SnackbarHostState
+) {
     val context = LocalContext.current
     val recordings by viewModel.recordings.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -109,7 +106,6 @@ fun RecordingsScreen(viewModel: RecordingsViewModel) {
             }
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val actionError by viewModel.actionError.collectAsState()
 
     LaunchedEffect(playerState) {
@@ -129,229 +125,204 @@ fun RecordingsScreen(viewModel: RecordingsViewModel) {
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_recordings),
-                        style =
-                            MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                letterSpacing = (-0.5).sp
-                            ),
-                    )
-                },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent,
-    ) { paddingValues ->
-        Box(
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(FinalTalkTheme.gradients.backgroundGradient),
+    ) {
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(FinalTalkTheme.gradients.backgroundGradient)
-                    .padding(paddingValues),
+                    .padding(horizontal = 20.dp),
         ) {
-            Column(
+            // Modern Outlined Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.updateSearchQuery(it) },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search_hint),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                },
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp),
-            ) {
-                // Modern Outlined Search Bar
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { viewModel.updateSearchQuery(it) },
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.search_hint),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        )
-                    },
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                shape = RoundedCornerShape(16.dp),
+                singleLine = true,
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Transparent,
+                    ),
+            )
+
+            if (recordings.isEmpty()) {
+                Box(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    singleLine = true,
-                    colors =
-                        OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = Color.Transparent,
-                        ),
-                )
-
-                if (recordings.isEmpty()) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_recordings),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                            textAlign = TextAlign.Center,
+                            .weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_recordings),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    items(
+                        items = recordings,
+                        key = { it.id },
+                    ) { recording ->
+                        val isPlayingThis = activePlayingId == recording.id
+                        RecordingItem(
+                            recording = recording,
+                            isPlaying = isPlayingThis,
+                            onClick = {
+                                if (isPlayingThis) {
+                                    if (playerState is PlayerState.Playing) {
+                                        viewModel.pausePlayback()
+                                    } else {
+                                        viewModel.resumePlayback()
+                                    }
+                                } else {
+                                    viewModel.playRecording(recording)
+                                }
+                            },
+                            onActionRename = {
+                                recordingToRename = recording
+                                renameInputName = recording.title
+                            },
+                            onActionDelete = {
+                                recordingToDelete = recording
+                            },
+                            onActionShare = {
+                                shareRecordingFile(context, recording)
+                            },
                         )
                     }
-                } else {
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        items(
-                            items = recordings,
-                            key = { it.id },
-                        ) { recording ->
-                            val isPlayingThis = activePlayingId == recording.id
-                            RecordingItem(
-                                recording = recording,
-                                isPlaying = isPlayingThis,
-                                onClick = {
-                                    if (isPlayingThis) {
-                                        if (playerState is PlayerState.Playing) {
-                                            viewModel.pausePlayback()
-                                        } else {
-                                            viewModel.resumePlayback()
-                                        }
-                                    } else {
-                                        viewModel.playRecording(recording)
-                                    }
-                                },
-                                onActionRename = {
-                                    recordingToRename = recording
-                                    renameInputName = recording.title
-                                },
-                                onActionDelete = {
-                                    recordingToDelete = recording
-                                },
-                                onActionShare = {
-                                    shareRecordingFile(context, recording)
-                                },
-                            )
-                        }
-                        // Spacer at end to prevent overlapping with floating player
-                        item {
-                            Spacer(modifier = Modifier.height(110.dp))
-                        }
+                    // Spacer at end to prevent overlapping with floating player
+                    item {
+                        Spacer(modifier = Modifier.height(110.dp))
                     }
                 }
             }
+        }
 
-            // Bottom-docked player overlay controller
-            PlayerController(
-                playerState = playerState,
-                activeRecording = activeRecording,
-                onPlayPauseToggle = {
-                    if (playerState is PlayerState.Playing) {
-                        viewModel.pausePlayback()
-                    } else {
-                        viewModel.resumePlayback()
+        // Bottom-docked player overlay controller
+        PlayerController(
+            playerState = playerState,
+            activeRecording = activeRecording,
+            onPlayPauseToggle = {
+                if (playerState is PlayerState.Playing) {
+                    viewModel.pausePlayback()
+                } else {
+                    viewModel.resumePlayback()
+                }
+            },
+            onStop = { viewModel.stopPlayback() },
+            onSeek = { viewModel.seekTo(it) },
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp),
+        )
+
+        // Delete confirmation dialog
+        recordingToDelete?.let { rec ->
+            AlertDialog(
+                onDismissRequest = { recordingToDelete = null },
+                title = { Text(stringResource(R.string.dialog_delete_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            R.string.dialog_delete_msg,
+                            rec.title,
+                        ),
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteRecording(rec.id)
+                            recordingToDelete = null
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_delete),
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
                 },
-                onStop = { viewModel.stopPlayback() },
-                onSeek = { viewModel.seekTo(it) },
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp),
+                dismissButton = {
+                    TextButton(onClick = { recordingToDelete = null }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
             )
+        }
 
-            // Delete confirmation dialog
-            recordingToDelete?.let { rec ->
-                AlertDialog(
-                    onDismissRequest = { recordingToDelete = null },
-                    title = { Text(stringResource(R.string.dialog_delete_title)) },
-                    text = {
-                        Text(
-                            stringResource(
-                                R.string.dialog_delete_msg,
-                                rec.title,
+        // Rename input dialog
+        recordingToRename?.let { rec ->
+            AlertDialog(
+                onDismissRequest = { recordingToRename = null },
+                title = { Text(stringResource(R.string.dialog_rename_title)) },
+                text = {
+                    TextField(
+                        value = renameInputName,
+                        onValueChange = { renameInputName = it },
+                        placeholder = { Text(stringResource(R.string.rename_input_hint)) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(8.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             ),
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.deleteRecording(rec.id)
-                                recordingToDelete = null
-                            },
-                        ) {
-                            Text(
-                                text = stringResource(R.string.action_delete),
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { recordingToDelete = null }) {
-                            Text(stringResource(R.string.action_cancel))
-                        }
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                )
-            }
-
-            // Rename input dialog
-            recordingToRename?.let { rec ->
-                AlertDialog(
-                    onDismissRequest = { recordingToRename = null },
-                    title = { Text(stringResource(R.string.dialog_rename_title)) },
-                    text = {
-                        TextField(
-                            value = renameInputName,
-                            onValueChange = { renameInputName = it },
-                            placeholder = { Text(stringResource(R.string.rename_input_hint)) },
-                            singleLine = true,
-                            shape = RoundedCornerShape(8.dp),
-                            colors =
-                                OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                ),
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.renameRecording(rec.id, renameInputName)
-                                recordingToRename = null
-                            },
-                        ) {
-                            Text(stringResource(R.string.action_save))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { recordingToRename = null }) {
-                            Text(stringResource(R.string.action_cancel))
-                        }
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                )
-            }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.renameRecording(rec.id, renameInputName)
+                            recordingToRename = null
+                        },
+                    ) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { recordingToRename = null }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
+            )
         }
     }
 }

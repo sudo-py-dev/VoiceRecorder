@@ -18,29 +18,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.AudioFile
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,7 +55,6 @@ import com.voicerecorder.domain.model.SaveLocation
 import com.voicerecorder.domain.model.ThemeMode
 import com.voicerecorder.presentation.theme.FinalTalkTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
@@ -156,306 +148,282 @@ fun SettingsScreen(
             SaveLocation.PUBLIC -> stringResource(R.string.location_public)
         }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_settings),
-                        style =
-                            MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                letterSpacing = (-0.5).sp
-                            ),
-                    )
-                },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-            )
-        },
-        containerColor = Color.Transparent,
-    ) { paddingValues ->
-        Box(
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(FinalTalkTheme.gradients.backgroundGradient)
+                .padding(20.dp),
+    ) {
+        Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .background(FinalTalkTheme.gradients.backgroundGradient)
-                    .padding(paddingValues)
-                    .padding(20.dp),
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+            // Section: General Settings
+            Text(
+                text = stringResource(R.string.settings_header_general),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 12.dp),
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                    ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
-                // Section: General Settings
-                Text(
-                    text = stringResource(R.string.settings_header_general),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 0.5.sp
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 12.dp),
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                        ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                ) {
-                    Column {
-                        SettingsDropdownItem(
-                            title = stringResource(R.string.setting_theme),
-                            subtitle = themeLabel,
-                            icon = Icons.Default.Settings,
-                            expanded = themeExpanded,
-                            onExpandedChange = { themeExpanded = it },
-                            onDismissRequest = { themeExpanded = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.theme_system)) },
-                                onClick = {
-                                    viewModel.setThemeMode(ThemeMode.SYSTEM)
-                                    themeExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.theme_light)) },
-                                onClick = {
-                                    viewModel.setThemeMode(ThemeMode.LIGHT)
-                                    themeExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.theme_dark)) },
-                                onClick = {
-                                    viewModel.setThemeMode(ThemeMode.DARK)
-                                    themeExpanded = false
-                                },
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-
-                        SettingsDropdownItem(
-                            title = stringResource(R.string.setting_language),
-                            subtitle = languageLabel,
-                            icon = Icons.Default.Language,
-                            expanded = languageExpanded,
-                            onExpandedChange = { languageExpanded = it },
-                            onDismissRequest = { languageExpanded = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_system)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.SYSTEM)
-                                    languageExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_en)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.ENGLISH)
-                                    languageExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_es)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.SPANISH)
-                                    languageExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_fr)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.FRENCH)
-                                    languageExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_de)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.GERMAN)
-                                    languageExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_he)) },
-                                onClick = {
-                                    viewModel.setLanguage(Language.HEBREW)
-                                    languageExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-
-                // Section: Recording Configs
-                Text(
-                    text = stringResource(R.string.settings_header_recording),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 0.5.sp
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 12.dp, top = 8.dp),
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                        ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                ) {
-                    Column {
-                        SettingsDropdownItem(
-                            title = stringResource(R.string.setting_format),
-                            subtitle = formatLabel,
-                            icon = Icons.Default.Info,
-                            expanded = formatExpanded,
-                            onExpandedChange = { formatExpanded = it },
-                            onDismissRequest = { formatExpanded = false },
-                        ) {
-                            AudioFormat.entries.forEach { format ->
-                                val label = when (format) {
-                                    AudioFormat.M4A -> stringResource(R.string.format_m4a)
-                                    AudioFormat.AMR -> stringResource(R.string.format_amr)
-                                    AudioFormat.WAV -> stringResource(R.string.format_wav)
-                                    AudioFormat.AAC -> stringResource(R.string.format_aac)
-                                    AudioFormat.OGG -> stringResource(R.string.format_ogg)
-                                }
-                                DropdownMenuItem(
-                                    text = { Text(label) },
-                                    onClick = {
-                                        viewModel.setAudioFormat(format)
-                                        formatExpanded = false
-                                    },
-                                )
-                            }
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-
-                        SettingsDropdownItem(
-                            title = stringResource(R.string.setting_quality),
-                            subtitle = qualityLabel,
-                            icon = Icons.Default.Tune,
-                            expanded = qualityExpanded,
-                            onExpandedChange = { qualityExpanded = it },
-                            onDismissRequest = { qualityExpanded = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.quality_high)) },
-                                onClick = {
-                                    viewModel.setAudioQuality(AudioQuality.HIGH)
-                                    qualityExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.quality_medium)) },
-                                onClick = {
-                                    viewModel.setAudioQuality(AudioQuality.MEDIUM)
-                                    qualityExpanded = false
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.quality_low)) },
-                                onClick = {
-                                    viewModel.setAudioQuality(AudioQuality.LOW)
-                                    qualityExpanded = false
-                                },
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-
-                        SettingsSwitchItem(
-                            title = stringResource(R.string.setting_save_location),
-                            subtitle = saveLocationLabel,
-                            icon = Icons.Default.Folder,
-                            checked = saveLocation == SaveLocation.PUBLIC,
-                            onCheckedChange = { isChecked ->
-                                val targetLoc = if (isChecked) SaveLocation.PUBLIC else SaveLocation.PRIVATE
-                                viewModel.setSaveLocation(targetLoc)
+                Column {
+                    SettingsDropdownItem(
+                        title = stringResource(R.string.setting_theme),
+                        subtitle = themeLabel,
+                        icon = Icons.Default.Settings,
+                        expanded = themeExpanded,
+                        onExpandedChange = { themeExpanded = it },
+                        onDismissRequest = { themeExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.theme_system)) },
+                            onClick = {
+                                viewModel.setThemeMode(ThemeMode.SYSTEM)
+                                themeExpanded = false
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.theme_light)) },
+                            onClick = {
+                                viewModel.setThemeMode(ThemeMode.LIGHT)
+                                themeExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.theme_dark)) },
+                            onClick = {
+                                viewModel.setThemeMode(ThemeMode.DARK)
+                                themeExpanded = false
+                            },
+                        )
+                    }
 
-                        if (saveLocation == SaveLocation.PUBLIC) {
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                                thickness = 1.dp,
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                            )
-                            SettingsNavigationItem(
-                                title = stringResource(R.string.setting_select_public_folder),
-                                subtitle = if (publicFolderName.isNotEmpty()) publicFolderName else stringResource(R.string.setting_default_public_folder_path),
-                                icon = Icons.Default.Folder,
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+
+                    SettingsDropdownItem(
+                        title = stringResource(R.string.setting_language),
+                        subtitle = languageLabel,
+                        icon = Icons.Default.Language,
+                        expanded = languageExpanded,
+                        onExpandedChange = { languageExpanded = it },
+                        onDismissRequest = { languageExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_system)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.SYSTEM)
+                                languageExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_en)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.ENGLISH)
+                                languageExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_es)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.SPANISH)
+                                languageExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_fr)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.FRENCH)
+                                languageExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_de)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.GERMAN)
+                                languageExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_he)) },
+                            onClick = {
+                                viewModel.setLanguage(Language.HEBREW)
+                                languageExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
+
+            // Section: Recording Configs
+            Text(
+                text = stringResource(R.string.settings_header_recording),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 12.dp, top = 8.dp),
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                    ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                Column {
+                    SettingsDropdownItem(
+                        title = stringResource(R.string.setting_format),
+                        subtitle = formatLabel,
+                        icon = Icons.Default.Info,
+                        expanded = formatExpanded,
+                        onExpandedChange = { formatExpanded = it },
+                        onDismissRequest = { formatExpanded = false },
+                    ) {
+                        AudioFormat.entries.forEach { format ->
+                            val label = when (format) {
+                                AudioFormat.M4A -> stringResource(R.string.format_m4a)
+                                AudioFormat.AMR -> stringResource(R.string.format_amr)
+                                AudioFormat.WAV -> stringResource(R.string.format_wav)
+                                AudioFormat.AAC -> stringResource(R.string.format_aac)
+                                AudioFormat.OGG -> stringResource(R.string.format_ogg)
+                            }
+                            DropdownMenuItem(
+                                text = { Text(label) },
                                 onClick = {
-                                    folderPickerLauncher.launch(null)
+                                    viewModel.setAudioFormat(format)
+                                    formatExpanded = false
                                 },
                             )
                         }
                     }
-                }
 
-                // Section: App Info
-                Text(
-                    text = stringResource(R.string.settings_header_support),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 0.5.sp
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 12.dp, top = 8.dp),
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                        ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                ) {
-                    SettingsNavigationItem(
-                        title = stringResource(R.string.setting_about),
-                        icon = Icons.Default.Info,
-                        onClick = onNavigateToAbout,
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp),
                     )
-                }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    SettingsDropdownItem(
+                        title = stringResource(R.string.setting_quality),
+                        subtitle = qualityLabel,
+                        icon = Icons.Default.Tune,
+                        expanded = qualityExpanded,
+                        onExpandedChange = { qualityExpanded = it },
+                        onDismissRequest = { qualityExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.quality_high)) },
+                            onClick = {
+                                viewModel.setAudioQuality(AudioQuality.HIGH)
+                                qualityExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.quality_medium)) },
+                            onClick = {
+                                viewModel.setAudioQuality(AudioQuality.MEDIUM)
+                                qualityExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.quality_low)) },
+                            onClick = {
+                                viewModel.setAudioQuality(AudioQuality.LOW)
+                                qualityExpanded = false
+                            },
+                        )
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+
+                    SettingsSwitchItem(
+                        title = stringResource(R.string.setting_save_location),
+                        subtitle = saveLocationLabel,
+                        icon = Icons.Default.Folder,
+                        checked = saveLocation == SaveLocation.PUBLIC,
+                        onCheckedChange = { isChecked ->
+                            val targetLoc = if (isChecked) SaveLocation.PUBLIC else SaveLocation.PRIVATE
+                            viewModel.setSaveLocation(targetLoc)
+                        },
+                    )
+
+                    if (saveLocation == SaveLocation.PUBLIC) {
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                        SettingsNavigationItem(
+                            title = stringResource(R.string.setting_select_public_folder),
+                            subtitle = if (publicFolderName.isNotEmpty()) publicFolderName else stringResource(R.string.setting_default_public_folder_path),
+                            icon = Icons.Default.Folder,
+                            onClick = {
+                                folderPickerLauncher.launch(null)
+                            },
+                        )
+                    }
+                }
             }
+
+            // Section: App Info
+            Text(
+                text = stringResource(R.string.settings_header_support),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 12.dp, top = 8.dp),
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                    ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                SettingsNavigationItem(
+                    title = stringResource(R.string.setting_about),
+                    icon = Icons.Default.Info,
+                    onClick = onNavigateToAbout,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -619,4 +587,3 @@ private fun SettingsNavigationItem(
         )
     }
 }
-

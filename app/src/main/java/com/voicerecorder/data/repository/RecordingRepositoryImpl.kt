@@ -39,7 +39,7 @@ class RecordingRepositoryImpl(
         format: AudioFormat,
         durationMs: Long,
         saveLocation: SaveLocation,
-        publicFolderUri: String
+        publicFolderUri: String,
     ): Result<AudioRecording> {
         return runCatching {
             var finalPath = tempFile.absolutePath
@@ -64,13 +64,14 @@ class RecordingRepositoryImpl(
                 }
             }
 
-            val recording = AudioRecording(
-                title = title,
-                filePath = finalPath,
-                durationMs = durationMs,
-                fileSize = size,
-                timestamp = System.currentTimeMillis(),
-            )
+            val recording =
+                AudioRecording(
+                    title = title,
+                    filePath = finalPath,
+                    durationMs = durationMs,
+                    fileSize = size,
+                    timestamp = System.currentTimeMillis(),
+                )
             val id = insertRecording(recording)
             recording.copy(id = id)
         }
@@ -87,12 +88,13 @@ class RecordingRepositoryImpl(
             val documentId = DocumentsContract.getTreeDocumentId(treeUri)
             val parentDocumentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
 
-            val newDocumentUri = DocumentsContract.createDocument(
-                context.contentResolver,
-                parentDocumentUri,
-                mimeType,
-                fileName
-            ) ?: return null
+            val newDocumentUri =
+                DocumentsContract.createDocument(
+                    context.contentResolver,
+                    parentDocumentUri,
+                    mimeType,
+                    fileName,
+                ) ?: return null
 
             context.contentResolver.openOutputStream(newDocumentUri)?.use { out ->
                 srcFile.inputStream().use { input ->
@@ -112,15 +114,16 @@ class RecordingRepositoryImpl(
         title: String,
         mimeType: String,
     ): Uri? {
-        val contentValues = android.content.ContentValues().apply {
-            put(MediaStore.Audio.Media.DISPLAY_NAME, file.name)
-            put(MediaStore.Audio.Media.TITLE, title)
-            put(MediaStore.Audio.Media.MIME_TYPE, mimeType)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/VoiceRecorder")
-                put(MediaStore.Audio.Media.IS_PENDING, 1)
+        val contentValues =
+            android.content.ContentValues().apply {
+                put(MediaStore.Audio.Media.DISPLAY_NAME, file.name)
+                put(MediaStore.Audio.Media.TITLE, title)
+                put(MediaStore.Audio.Media.MIME_TYPE, mimeType)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/VoiceRecorder")
+                    put(MediaStore.Audio.Media.IS_PENDING, 1)
+                }
             }
-        }
 
         val resolver = context.contentResolver
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -177,21 +180,25 @@ class RecordingRepositoryImpl(
                 // If not SAF or SAF rename failed, try MediaStore rename
                 if (!renamed) {
                     try {
-                        val values = android.content.ContentValues().apply {
-                            put(MediaStore.Audio.Media.TITLE, sanitizedTitle)
-                            
-                            // Retrieve the extension to construct new display name
-                            val oldDisplayName = context.contentResolver.query(
-                                uri, 
-                                arrayOf(MediaStore.Audio.Media.DISPLAY_NAME), 
-                                null, null, null
-                            )?.use { cursor ->
-                                if (cursor.moveToFirst()) cursor.getString(0) else null
+                        val values =
+                            android.content.ContentValues().apply {
+                                put(MediaStore.Audio.Media.TITLE, sanitizedTitle)
+
+                                // Retrieve the extension to construct new display name
+                                val oldDisplayName =
+                                    context.contentResolver.query(
+                                        uri,
+                                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME),
+                                        null,
+                                        null,
+                                        null,
+                                    )?.use { cursor ->
+                                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                                    }
+                                val ext = oldDisplayName?.substringAfterLast('.', "") ?: "m4a"
+                                val newDisplayName = if (ext.isNotEmpty()) "$sanitizedTitle.$ext" else sanitizedTitle
+                                put(MediaStore.Audio.Media.DISPLAY_NAME, newDisplayName)
                             }
-                            val ext = oldDisplayName?.substringAfterLast('.', "") ?: "m4a"
-                            val newDisplayName = if (ext.isNotEmpty()) "$sanitizedTitle.$ext" else sanitizedTitle
-                            put(MediaStore.Audio.Media.DISPLAY_NAME, newDisplayName)
-                        }
                         context.contentResolver.update(uri, values, null, null)
                     } catch (e: Exception) {
                         // Ignore, fallback to title rename only

@@ -75,7 +75,10 @@ class SettingsViewModel(
         }
     }
 
-    fun setPublicFolder(uri: String, name: String) {
+    fun setPublicFolder(
+        uri: String,
+        name: String,
+    ) {
         viewModelScope.launch {
             preferencesRepository.setPublicFolder(uri, name)
         }

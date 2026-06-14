@@ -40,7 +40,10 @@ class PreferencesRepositoryImpl(
         preferencesManager.setSaveLocation(location)
     }
 
-    override suspend fun setPublicFolder(uri: String, name: String) {
+    override suspend fun setPublicFolder(
+        uri: String,
+        name: String,
+    ) {
         preferencesManager.setPublicFolder(uri, name)
     }
 }

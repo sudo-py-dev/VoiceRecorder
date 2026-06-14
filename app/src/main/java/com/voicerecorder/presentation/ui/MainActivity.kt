@@ -185,7 +185,7 @@ class MainActivity : ComponentActivity() {
                                     style =
                                         MaterialTheme.typography.headlineMedium.copy(
                                             fontWeight = FontWeight.ExtraBold,
-                                            letterSpacing = (-0.5).sp
+                                            letterSpacing = (-0.5).sp,
                                         ),
                                 )
                             },
@@ -258,7 +258,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 },
-                snackbarHost = { SnackbarHost(snackbarHostState) }
+                snackbarHost = { SnackbarHost(snackbarHostState) },
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
@@ -268,13 +268,13 @@ class MainActivity : ComponentActivity() {
                     composable(NavigationItem.Recorder.route) {
                         RecorderScreen(
                             viewModel = recorderViewModel,
-                            snackbarHostState = snackbarHostState
+                            snackbarHostState = snackbarHostState,
                         )
                     }
                     composable(NavigationItem.Recordings.route) {
                         RecordingsScreen(
                             viewModel = recordingsViewModel,
-                            snackbarHostState = snackbarHostState
+                            snackbarHostState = snackbarHostState,
                         )
                     }
                     composable(NavigationItem.Settings.route) {

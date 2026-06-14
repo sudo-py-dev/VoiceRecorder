@@ -60,7 +60,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.voicerecorder.R
 import com.voicerecorder.domain.model.AudioRecording
@@ -73,7 +72,7 @@ import java.io.File
 @Composable
 fun RecordingsScreen(
     viewModel: RecordingsViewModel,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     val recordings by viewModel.recordings.collectAsState()

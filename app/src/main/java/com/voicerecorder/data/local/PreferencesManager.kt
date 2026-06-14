@@ -101,7 +101,10 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
-    suspend fun setPublicFolder(uri: String, name: String) {
+    suspend fun setPublicFolder(
+        uri: String,
+        name: String,
+    ) {
         context.dataStore.edit { preferences ->
             preferences[KEY_PUBLIC_FOLDER_URI] = uri
             preferences[KEY_PUBLIC_FOLDER_NAME] = name

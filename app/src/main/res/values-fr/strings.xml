@@ -49,6 +49,7 @@
     <string name="error_delete_failed">Échec de la suppression de l\'enregistrement</string>
     <string name="error_rename_failed">Échec du renommage de l\'enregistrement</string>
     <string name="error_save_failed">Échec de la sauvegarde de l\'enregistrement</string>
+    <string name="error_recording_too_short">Enregistrement trop court (minimum 1 seconde)</string>
     <string name="default_recording_title_prefix">Enregistrement_</string>
     
     <string name="setting_format">Format d\'enregistrement</string>

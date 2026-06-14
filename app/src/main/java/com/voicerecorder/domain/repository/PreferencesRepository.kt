@@ -27,5 +27,8 @@ interface PreferencesRepository {
 
     suspend fun setSaveLocation(location: SaveLocation)
 
-    suspend fun setPublicFolder(uri: String, name: String)
+    suspend fun setPublicFolder(
+        uri: String,
+        name: String,
+    )
 }

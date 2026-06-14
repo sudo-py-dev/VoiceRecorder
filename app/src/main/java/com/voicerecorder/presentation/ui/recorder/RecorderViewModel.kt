@@ -7,13 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.voicerecorder.R
-import com.voicerecorder.domain.model.AudioRecording
 import com.voicerecorder.domain.model.RecordingState
-import com.voicerecorder.domain.model.SaveLocation
 import com.voicerecorder.domain.repository.AudioRecorderRepository
 import com.voicerecorder.domain.repository.PreferencesRepository
 import com.voicerecorder.domain.repository.RecordingRepository
-
 import com.voicerecorder.presentation.service.RecordingService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -145,8 +142,14 @@ class RecorderViewModel(
             val format = preferencesRepository.audioFormat.first()
             val saveLocation = preferencesRepository.saveLocation.first()
             val publicFolderUri = preferencesRepository.publicFolderUri.first()
-            
+
             val duration = getFileDurationMs(file)
+
+            if (duration < 1000L) {
+                file.delete()
+                _saveError.value = application.getString(R.string.error_recording_too_short)
+                return
+            }
 
             recordingRepository.saveRecording(
                 tempFile = file,
@@ -154,7 +157,7 @@ class RecorderViewModel(
                 format = format,
                 durationMs = duration,
                 saveLocation = saveLocation,
-                publicFolderUri = publicFolderUri
+                publicFolderUri = publicFolderUri,
             ).onSuccess {
                 _saveSuccess.value = application.getString(R.string.recording_completed, title)
             }.onFailure {

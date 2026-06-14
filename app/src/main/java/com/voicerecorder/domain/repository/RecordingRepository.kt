@@ -19,7 +19,7 @@ interface RecordingRepository {
         format: AudioFormat,
         durationMs: Long,
         saveLocation: SaveLocation,
-        publicFolderUri: String
+        publicFolderUri: String,
     ): Result<AudioRecording>
 
     suspend fun renameRecording(

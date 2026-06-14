@@ -20,16 +20,15 @@ import java.io.RandomAccessFile
  * - SubChunk2Size (4 bytes): numSamples * NumChannels * BitsPerSample/8
  */
 object WavHeaderWriter {
-
     fun writeHeader(
         file: RandomAccessFile,
         sampleRate: Int,
         numChannels: Int,
         bitsPerSample: Int,
-        dataLength: Long
+        dataLength: Long,
     ) {
         file.seek(0)
-        
+
         val byteRate = (sampleRate * numChannels * bitsPerSample / 8).toLong()
         val blockAlign = (numChannels * bitsPerSample / 8).toShort()
 

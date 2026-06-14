@@ -2,7 +2,6 @@ package com.voicerecorder.data.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.AudioFormat as AndroidAudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Build
@@ -23,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
+import android.media.AudioFormat as AndroidAudioFormat
 
 class AudioRecorderRepositoryImpl(
     private val context: Context,
@@ -90,11 +90,12 @@ class AudioRecorderRepositoryImpl(
                     AudioFormat.M4A -> MediaRecorder.OutputFormat.MPEG_4
                     AudioFormat.AMR -> MediaRecorder.OutputFormat.THREE_GPP
                     AudioFormat.AAC -> MediaRecorder.OutputFormat.AAC_ADTS
-                    AudioFormat.OGG -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        MediaRecorder.OutputFormat.OGG
-                    } else {
-                        MediaRecorder.OutputFormat.MPEG_4
-                    }
+                    AudioFormat.OGG ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            MediaRecorder.OutputFormat.OGG
+                        } else {
+                            MediaRecorder.OutputFormat.MPEG_4
+                        }
                     else -> MediaRecorder.OutputFormat.MPEG_4
                 }
 
@@ -103,32 +104,35 @@ class AudioRecorderRepositoryImpl(
                     AudioFormat.M4A -> MediaRecorder.AudioEncoder.AAC
                     AudioFormat.AMR -> MediaRecorder.AudioEncoder.AMR_NB
                     AudioFormat.AAC -> MediaRecorder.AudioEncoder.AAC
-                    AudioFormat.OGG -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        MediaRecorder.AudioEncoder.OPUS
-                    } else {
-                        MediaRecorder.AudioEncoder.AAC
-                    }
+                    AudioFormat.OGG ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            MediaRecorder.AudioEncoder.OPUS
+                        } else {
+                            MediaRecorder.AudioEncoder.AAC
+                        }
                     else -> MediaRecorder.AudioEncoder.AAC
                 }
 
             val samplingRate =
                 when (format) {
                     AudioFormat.AMR -> 8000
-                    else -> when (quality) {
-                        AudioQuality.HIGH -> 48000
-                        AudioQuality.MEDIUM -> 44100
-                        AudioQuality.LOW -> 22050
-                    }
+                    else ->
+                        when (quality) {
+                            AudioQuality.HIGH -> 48000
+                            AudioQuality.MEDIUM -> 44100
+                            AudioQuality.LOW -> 22050
+                        }
                 }
 
             val bitRate =
                 when (format) {
                     AudioFormat.AMR -> 12200
-                    else -> when (quality) {
-                        AudioQuality.HIGH -> 256000
-                        AudioQuality.MEDIUM -> 128000
-                        AudioQuality.LOW -> 64000
-                    }
+                    else ->
+                        when (quality) {
+                            AudioQuality.HIGH -> 256000
+                            AudioQuality.MEDIUM -> 128000
+                            AudioQuality.LOW -> 64000
+                        }
                 }
 
             newRecorder.apply {
@@ -157,27 +161,33 @@ class AudioRecorderRepositoryImpl(
     }
 
     @SuppressLint("MissingPermission")
-    private fun startWavRecording(outputPath: String, quality: AudioQuality): Result<Unit> {
+    private fun startWavRecording(
+        outputPath: String,
+        quality: AudioQuality,
+    ): Result<Unit> {
         return runCatching {
-            val sampleRate = when (quality) {
-                AudioQuality.HIGH -> 48000
-                AudioQuality.MEDIUM -> 44100
-                AudioQuality.LOW -> 22050
-            }
-            val minBufferSize = AudioRecord.getMinBufferSize(
-                sampleRate,
-                AndroidAudioFormat.CHANNEL_IN_MONO,
-                AndroidAudioFormat.ENCODING_PCM_16BIT
-            )
-            
-            val recorder = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sampleRate,
-                AndroidAudioFormat.CHANNEL_IN_MONO,
-                AndroidAudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize * 2
-            )
-            
+            val sampleRate =
+                when (quality) {
+                    AudioQuality.HIGH -> 48000
+                    AudioQuality.MEDIUM -> 44100
+                    AudioQuality.LOW -> 22050
+                }
+            val minBufferSize =
+                AudioRecord.getMinBufferSize(
+                    sampleRate,
+                    AndroidAudioFormat.CHANNEL_IN_MONO,
+                    AndroidAudioFormat.ENCODING_PCM_16BIT,
+                )
+
+            val recorder =
+                AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    sampleRate,
+                    AndroidAudioFormat.CHANNEL_IN_MONO,
+                    AndroidAudioFormat.ENCODING_PCM_16BIT,
+                    minBufferSize * 2,
+                )
+
             if (recorder.state != AudioRecord.STATE_INITIALIZED) {
                 throw IllegalStateException("AudioRecord initialization failed")
             }
@@ -200,53 +210,58 @@ class AudioRecorderRepositoryImpl(
         }
     }
 
-    private fun startPcmWriting(outputPath: String, sampleRate: Int, bufferSize: Int) {
+    private fun startPcmWriting(
+        outputPath: String,
+        sampleRate: Int,
+        bufferSize: Int,
+    ) {
         pcmWritingJob?.cancel()
-        pcmWritingJob = scope.launch(Dispatchers.IO) {
-            val file = File(outputPath)
-            FileOutputStream(file).use { outputStream ->
-                // Write dummy header first
-                outputStream.write(ByteArray(44))
-                
-                val buffer = ShortArray(bufferSize)
-                while (isActive) {
-                    val state = _recordingState.value
-                    if (state is RecordingState.Recording) {
-                        val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
-                        if (read > 0) {
-                            val byteBuffer = ByteArray(read * 2)
-                            var maxAmp = 0
-                            for (i in 0 until read) {
-                                val s = buffer[i]
-                                val absS = if (s < 0) -s.toInt() else s.toInt()
-                                if (absS > maxAmp) maxAmp = absS
-                                byteBuffer[i * 2] = (s.toInt() and 0x00FF).toByte()
-                                byteBuffer[i * 2 + 1] = ((s.toInt() and 0xFF00) shr 8).toByte()
+        pcmWritingJob =
+            scope.launch(Dispatchers.IO) {
+                val file = File(outputPath)
+                FileOutputStream(file).use { outputStream ->
+                    // Write dummy header first
+                    outputStream.write(ByteArray(44))
+
+                    val buffer = ShortArray(bufferSize)
+                    while (isActive) {
+                        val state = _recordingState.value
+                        if (state is RecordingState.Recording) {
+                            val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
+                            if (read > 0) {
+                                val byteBuffer = ByteArray(read * 2)
+                                var maxAmp = 0
+                                for (i in 0 until read) {
+                                    val s = buffer[i]
+                                    val absS = if (s < 0) -s.toInt() else s.toInt()
+                                    if (absS > maxAmp) maxAmp = absS
+                                    byteBuffer[i * 2] = (s.toInt() and 0x00FF).toByte()
+                                    byteBuffer[i * 2 + 1] = ((s.toInt() and 0xFF00) shr 8).toByte()
+                                }
+                                currentMaxAmplitude = maxAmp
+                                outputStream.write(byteBuffer)
+                                pcmDataLength += byteBuffer.size
                             }
-                            currentMaxAmplitude = maxAmp
-                            outputStream.write(byteBuffer)
-                            pcmDataLength += byteBuffer.size
+                        } else if (state is RecordingState.Paused) {
+                            currentMaxAmplitude = 0
+                            delay(100)
+                        } else {
+                            break
                         }
-                    } else if (state is RecordingState.Paused) {
-                        currentMaxAmplitude = 0
-                        delay(100)
-                    } else {
-                        break
                     }
                 }
+
+                // After recording stops, write the real WAV header
+                RandomAccessFile(file, "rw").use { raf ->
+                    WavHeaderWriter.writeHeader(
+                        raf,
+                        sampleRate,
+                        1,
+                        16,
+                        pcmDataLength,
+                    )
+                }
             }
-            
-            // After recording stops, write the real WAV header
-            RandomAccessFile(file, "rw").use { raf ->
-                WavHeaderWriter.writeHeader(
-                    raf,
-                    sampleRate,
-                    1,
-                    16,
-                    pcmDataLength
-                )
-            }
-        }
     }
 
     @Synchronized
@@ -294,7 +309,7 @@ class AudioRecorderRepositoryImpl(
 
         return runCatching {
             stopTicker()
-            
+
             mediaRecorder?.apply {
                 try {
                     stop()
@@ -303,13 +318,13 @@ class AudioRecorderRepositoryImpl(
                 release()
             }
             mediaRecorder = null
-            
+
             audioRecord?.apply {
                 stop()
                 release()
             }
             audioRecord = null
-            
+
             // Wait for PCM writing job to finish
             val finalDuration = durationMs
             _recordingState.value = RecordingState.Idle

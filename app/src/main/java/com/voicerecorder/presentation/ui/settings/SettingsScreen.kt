@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -69,38 +68,41 @@ fun SettingsScreen(
     val publicFolderUri by viewModel.publicFolderUri.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
-    val folderPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()
-    ) { uri: android.net.Uri? ->
-        if (uri != null) {
-            val takeFlags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            try {
-                context.contentResolver.takePersistableUriPermission(uri, takeFlags)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            var displayName = ""
-            try {
-                val documentId = android.provider.DocumentsContract.getTreeDocumentId(uri)
-                val documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(uri, documentId)
-                context.contentResolver.query(
-                    documentUri,
-                    arrayOf(android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME),
-                    null, null, null
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        displayName = cursor.getString(0) ?: ""
-                    }
+    val folderPickerLauncher =
+        androidx.activity.compose.rememberLauncherForActivityResult(
+            contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree(),
+        ) { uri: android.net.Uri? ->
+            if (uri != null) {
+                val takeFlags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                try {
+                    context.contentResolver.takePersistableUriPermission(uri, takeFlags)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                var displayName = ""
+                try {
+                    val documentId = android.provider.DocumentsContract.getTreeDocumentId(uri)
+                    val documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(uri, documentId)
+                    context.contentResolver.query(
+                        documentUri,
+                        arrayOf(android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+                        null,
+                        null,
+                        null,
+                    )?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            displayName = cursor.getString(0) ?: ""
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (displayName.isEmpty()) {
+                    displayName = uri.path?.substringAfterLast(':') ?: context.getString(R.string.folder_custom_fallback)
+                }
+                viewModel.setPublicFolder(uri.toString(), displayName)
             }
-            if (displayName.isEmpty()) {
-                displayName = uri.path?.substringAfterLast(':') ?: context.getString(R.string.folder_custom_fallback)
-            }
-            viewModel.setPublicFolder(uri.toString(), displayName)
         }
-    }
 
     val scrollState = rememberScrollState()
 
@@ -165,10 +167,11 @@ fun SettingsScreen(
             // Section: General Settings
             Text(
                 text = stringResource(R.string.settings_header_general),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp,
+                    ),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 12.dp),
             )
@@ -278,10 +281,11 @@ fun SettingsScreen(
             // Section: Recording Configs
             Text(
                 text = stringResource(R.string.settings_header_recording),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp,
+                    ),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp),
             )
@@ -306,13 +310,14 @@ fun SettingsScreen(
                         onDismissRequest = { formatExpanded = false },
                     ) {
                         AudioFormat.entries.forEach { format ->
-                            val label = when (format) {
-                                AudioFormat.M4A -> stringResource(R.string.format_m4a)
-                                AudioFormat.AMR -> stringResource(R.string.format_amr)
-                                AudioFormat.WAV -> stringResource(R.string.format_wav)
-                                AudioFormat.AAC -> stringResource(R.string.format_aac)
-                                AudioFormat.OGG -> stringResource(R.string.format_ogg)
-                            }
+                            val label =
+                                when (format) {
+                                    AudioFormat.M4A -> stringResource(R.string.format_m4a)
+                                    AudioFormat.AMR -> stringResource(R.string.format_amr)
+                                    AudioFormat.WAV -> stringResource(R.string.format_wav)
+                                    AudioFormat.AAC -> stringResource(R.string.format_aac)
+                                    AudioFormat.OGG -> stringResource(R.string.format_ogg)
+                                }
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
@@ -398,10 +403,11 @@ fun SettingsScreen(
             // Section: App Info
             Text(
                 text = stringResource(R.string.settings_header_support),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp,
+                    ),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp),
             )

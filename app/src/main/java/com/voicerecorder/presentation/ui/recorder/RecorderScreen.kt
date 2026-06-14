@@ -56,7 +56,7 @@ import com.voicerecorder.presentation.ui.util.FormatUtils
 @Composable
 fun RecorderScreen(
     viewModel: RecorderViewModel,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     val state by viewModel.recordingState.collectAsState()

@@ -49,6 +49,7 @@
     <string name="error_delete_failed">מחיקת ההקלטה נכשלה</string>
     <string name="error_rename_failed">שינוי שם ההקלטה נכשל</string>
     <string name="error_save_failed">שמירת ההקלטה נכשלה</string>
+    <string name="error_recording_too_short">הקלטה קצרה מדי (מינימום שנייה אחת)</string>
     <string name="default_recording_title_prefix">הקלטה_</string>
     
     <string name="setting_format">פורמט הקלטה</string>

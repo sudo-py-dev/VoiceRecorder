@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">מקליט קול</string>
+    <string name="title_recorder">מקליט</string>
+    <string name="title_recordings">הקלטות</string>
+    <string name="title_settings">הגדרות</string>
+    
+    <string name="state_idle">מוכן להקלטה. הקש כדי להתחיל.</string>
+    <string name="state_recording">הקלטה פעילה…</string>
+    <string name="state_paused">ההקלטה מושהית</string>
+    
+    <string name="action_cancel">ביטול</string>
+    <string name="action_save">שמירה</string>
+    <string name="action_delete">מחיקה</string>
+    <string name="action_rename">שינוי שם</string>
+    <string name="action_share">שיתוף</string>
+    
+    <string name="search_hint">חפש הקלטות…</string>
+    <string name="no_recordings">לא נמצאו הקלטות</string>
+    
+    <string name="dialog_delete_title">למחוק הקלטה?</string>
+    <string name="dialog_delete_msg">האם אתה בטוח שברצונך למחוק את \"%s\"? לא ניתן לבטל פעולה זו.</string>
+    <string name="dialog_rename_title">שינוי שם הקלטה</string>
+    <string name="rename_input_hint">שם ההקלטה</string>
+    
+    <string name="permission_required_title">נדרשות הרשאות</string>
+    <string name="permission_required_desc">כדי להקליט שמע ולהציג את מצב ההקלטה ברקע, אפליקציה זו זקוקה להרשאות מיקרופון והתראות.</string>
+    <string name="action_grant">הענק הרשאות</string>
+    
+    <string name="notification_title">הקלטה פעילה</string>
+    <string name="notification_text">ההקלטה מתבצעת ברקע. לחץ כדי לחזור לאפליקציה.</string>
+    
+    <string name="setting_theme">עיצוב</string>
+    <string name="setting_language">שפה</string>
+    
+    <string name="theme_system">ברירת מחדל של המערכת</string>
+    <string name="theme_light">מצב בהיר</string>
+    <string name="theme_dark">מצב כהה</string>
+    
+    <string name="lang_system">ברירת מחדל של המערכת (אוטומטי)</string>
+    <string name="lang_en">English (אנגלית)</string>
+    <string name="lang_es">Español (ספרדית)</string>
+    <string name="lang_fr">Français (צרפתית)</string>
+    <string name="lang_de">Deutsch (גרמנית)</string>
+    <string name="lang_he">עברית</string>
+    
+    <string name="error_record_failed">הפעלת ההקלטה נכשלה</string>
+    <string name="error_play_failed">השמעת השמע נכשלה</string>
+    <string name="error_delete_failed">מחיקת ההקלטה נכשלה</string>
+    <string name="error_rename_failed">שינוי שם ההקלטה נכשל</string>
+    <string name="default_recording_title_prefix">הקלטה_</string>
+    
+    <string name="setting_format">פורמט הקלטה</string>
+    <string name="setting_quality">איכות שמע</string>
+    <string name="setting_save_location">מיקום שמירה</string>
+    
+    <string name="format_m4a">MPEG-4 / AAC (.m4a)</string>
+    <string name="format_amr">AMR-NB (.3gp)</string>
+    <string name="format_wav">שמע Waveform (.wav)</string>
+    <string name="format_aac">קידוד שמע מתקדם (.aac)</string>
+    <string name="format_ogg">Ogg Opus (.ogg)</string>
+    
+    <string name="quality_high">איכות גבוהה (256kbps / 48kHz)</string>
+    <string name="quality_medium">איכות בינונית (128kbps / 44.1kHz)</string>
+    <string name="quality_low">איכות נמוכה (64kbps / 22kHz)</string>
+    
+    <string name="location_private">תיקיית אפליקציה פרטית (מאובטחת ומבודדת)</string>
+    <string name="location_public">תיקיית מוזיקה ציבורית (משותפת עם המערכת)</string>
+    
+    <string name="title_about">אודות</string>
+    <string name="setting_about">אודות מקליט קול</string>
+    <string name="about_developer_label">מפתח</string>
+    <string name="about_developer_value">ed apps</string>
+    <string name="about_version_label">גרסה</string>
+    <string name="about_credits_label">תודות לקוד פתוח</string>
+    <string name="about_credits_desc">אפליקציה זו נבנתה באמצעות הספריות והרכיבים הבאים של קוד פתוח:</string>
+    
+    <string name="crash_title">האפליקציה קרסה</string>
+    <string name="crash_description">שגיאה לא צפויה התרחשה. באפשרותך להפעיל מחדש את האפליקציה או להעתיק/לשתף את היומנים הבאים כדי לדווח על הבעיה.</string>
+    <string name="crash_restart">הפעלה מחדש</string>
+    <string name="crash_share_log">שיתוף יומן</string>
+    <string name="crash_device_info">מידע על המכשיר</string>
+    <string name="crash_stack_trace">עקבות מחסנית (Stack Trace)</string>
+    <string name="crash_copied">עקבות מחסנית הועתקו ללוח</string>
+    <string name="crash_share_chooser">שיתוף דוח קריסה</string>
+    <string name="crash_share_subject">דוח קריסה של מקליט קול</string>
+    <string name="recording_completed">ההקלטה הושלמה: %s</string>
+    <string name="settings_header_general">כללי</string>
+    <string name="settings_header_recording">הגדרות הקלטה</string>
+    <string name="settings_header_support">תמיכה</string>
+    <string name="setting_select_public_folder">בחר תיקייה ציבורית</string>
+    <string name="setting_default_public_folder_path">ברירת מחדל (Music/VoiceRecorder)</string>
+    <string name="folder_custom_fallback">תיקייה מותאמת אישית</string>
+</resources>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grabadora de voz</string>
+    <string name="title_recorder">Grabadora</string>
+    <string name="title_recordings">Grabaciones</string>
+    <string name="title_settings">Ajustes</string>
+    
+    <string name="state_idle">Listo para grabar. Presiona para comenzar.</string>
+    <string name="state_recording">Grabación activa…</string>
+    <string name="state_paused">Grabación pausada</string>
+    
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_rename">Renombrar</string>
+    <string name="action_share">Compartir</string>
+    
+    <string name="search_hint">Buscar grabaciones…</string>
+    <string name="no_recordings">No se encontraron grabaciones</string>
+    
+    <string name="dialog_delete_title">¿Eliminar grabación?</string>
+    <string name="dialog_delete_msg">¿Estás seguro de que quieres eliminar \"%s\"? Esta acción no se puede deshacer.</string>
+    <string name="dialog_rename_title">Renombrar grabación</string>
+    <string name="rename_input_hint">Nombre de la grabación</string>
+    
+    <string name="permission_required_title">Permisos requeridos</string>
+    <string name="permission_required_desc">Para grabar audio y mostrar el estado de la grabación en segundo plano, esta aplicación requiere permisos de micrófono y de notificaciones.</string>
+    <string name="action_grant">Conceder permisos</string>
+    
+    <string name="notification_title">Grabación activa</string>
+    <string name="notification_text">Grabando en segundo plano. Toca para volver a la aplicación.</string>
+    
+    <string name="setting_theme">Tema</string>
+    <string name="setting_language">Idioma</string>
+    
+    <string name="theme_system">Predeterminado del sistema</string>
+    <string name="theme_light">Modo claro</string>
+    <string name="theme_dark">Modo oscuro</string>
+    
+    <string name="lang_system">Predeterminado del sistema (Auto)</string>
+    <string name="lang_en">English (Inglés)</string>
+    <string name="lang_es">Español</string>
+    <string name="lang_fr">Français (Francés)</string>
+    <string name="lang_de">Deutsch (Alemán)</string>
+    <string name="lang_he">עברית (Hebreo)</string>
+    
+    <string name="error_record_failed">Error al iniciar la grabación</string>
+    <string name="error_play_failed">Error al reproducir audio</string>
+    <string name="error_delete_failed">Error al eliminar la grabación</string>
+    <string name="error_rename_failed">Error al renombrar la grabación</string>
+    <string name="default_recording_title_prefix">Grabacion_</string>
+    
+    <string name="setting_format">Formato de grabación</string>
+    <string name="setting_quality">Calidad de audio</string>
+    <string name="setting_save_location">Ubicación de almacenamiento</string>
+    
+    <string name="format_m4a">MPEG-4 / AAC (.m4a)</string>
+    <string name="format_amr">AMR-NB (.3gp)</string>
+    <string name="format_wav">Audio Waveform (.wav)</string>
+    <string name="format_aac">Codificación de Audio Avanzada (.aac)</string>
+    <string name="format_ogg">Ogg Opus (.ogg)</string>
+    
+    <string name="quality_high">Calidad Alta (256kbps / 48kHz)</string>
+    <string name="quality_medium">Calidad Media (128kbps / 44.1kHz)</string>
+    <string name="quality_low">Calidad Baja (64kbps / 22kHz)</string>
+    
+    <string name="location_private">Carpeta privada (Segura y aislada)</string>
+    <string name="location_public">Carpeta pública Música (Compartida con el sistema)</string>
+    
+    <string name="title_about">Acerca de</string>
+    <string name="setting_about">Acerca de Grabadora de voz</string>
+    <string name="about_developer_label">Desarrollador</string>
+    <string name="about_developer_value">ed apps</string>
+    <string name="about_version_label">Versión</string>
+    <string name="about_credits_label">Créditos de código abierto</string>
+    <string name="about_credits_desc">Esta aplicación está construida utilizando las siguientes bibliotecas y componentes de código abierto:</string>
+    
+    <string name="crash_title">La aplicación falló</string>
+    <string name="crash_description">Ocurrió un error inesperado. Puedes reiniciar la aplicación o copiar/compartir los registros a continuación para reportar el problema.</string>
+    <string name="crash_restart">Reiniciar</string>
+    <string name="crash_share_log">Compartir registro</string>
+    <string name="crash_device_info">Información del dispositivo</string>
+    <string name="crash_stack_trace">Seguimiento de pila (Stack Trace)</string>
+    <string name="crash_copied">Copiado al portapapeles</string>
+    <string name="crash_share_chooser">Compartir informe de fallas</string>
+    <string name="crash_share_subject">Informe de fallas de Grabadora de voz</string>
+    <string name="recording_completed">Grabación completada: %s</string>
+    <string name="settings_header_general">General</string>
+    <string name="settings_header_recording">Ajustes de grabación</string>
+    <string name="settings_header_support">Soporte</string>
+    <string name="setting_select_public_folder">Seleccionar carpeta pública</string>
+    <string name="setting_default_public_folder_path">Predeterminado (Music/VoiceRecorder)</string>
+    <string name="folder_custom_fallback">Carpeta personalizada</string>
+</resources>

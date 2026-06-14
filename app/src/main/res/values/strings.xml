@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Voice Recorder</string>
+    <string name="title_recorder">Recorder</string>
+    <string name="title_recordings">Recordings</string>
+    <string name="title_settings">Settings</string>
+    
+    <string name="state_idle">Ready to record. Tap to start.</string>
+    <string name="state_recording">Recording active…</string>
+    <string name="state_paused">Recording paused</string>
+    
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_share">Share</string>
+    
+    <string name="search_hint">Search recordings…</string>
+    <string name="no_recordings">No recordings found</string>
+    
+    <string name="dialog_delete_title">Delete recording?</string>
+    <string name="dialog_delete_msg">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
+    <string name="dialog_rename_title">Rename recording</string>
+    <string name="rename_input_hint">Recording name</string>
+    
+    <string name="permission_required_title">Permissions Required</string>
+    <string name="permission_required_desc">To record audio and display the recording status in the background, this app requires microphone and notification permissions.</string>
+    <string name="action_grant">Grant Permissions</string>
+    
+    <string name="notification_title">Recording active</string>
+    <string name="notification_text">Recording in the background. Tap to return to the app.</string>
+    
+    <string name="setting_theme">Theme</string>
+    <string name="setting_language">Language</string>
+    
+    <string name="theme_system">System Default</string>
+    <string name="theme_light">Light Mode</string>
+    <string name="theme_dark">Dark Mode</string>
+    
+    <string name="lang_system">System Default (Auto)</string>
+    <string name="lang_en">English</string>
+    <string name="lang_es">Español</string>
+    <string name="lang_fr">Français</string>
+    <string name="lang_de">Deutsch</string>
+    <string name="lang_he">עברית (Hebrew)</string>
+    
+    <string name="error_record_failed">Failed to start recording</string>
+    <string name="error_play_failed">Failed to play audio</string>
+    <string name="error_delete_failed">Failed to delete recording</string>
+    <string name="error_rename_failed">Failed to rename recording</string>
+    <string name="default_recording_title_prefix">Recording_</string>
+    
+    <string name="setting_format">Recording Format</string>
+    <string name="setting_quality">Audio Quality</string>
+    <string name="setting_save_location">Storage Location</string>
+    
+    <string name="format_m4a">MPEG-4 / AAC (.m4a)</string>
+    <string name="format_amr">AMR-NB (.3gp)</string>
+    <string name="format_wav">Waveform Audio (.wav)</string>
+    <string name="format_aac">Advanced Audio Coding (.aac)</string>
+    <string name="format_ogg">Ogg Opus (.ogg)</string>
+    
+    <string name="quality_high">High Quality (256kbps / 48kHz)</string>
+    <string name="quality_medium">Medium Quality (128kbps / 44.1kHz)</string>
+    <string name="quality_low">Low Quality (64kbps / 22kHz)</string>
+    
+    <string name="location_private">Private App Folder (Isolated &amp; Secure)</string>
+    <string name="location_public">Public Music Folder (Shared with System)</string>
+    
+    <string name="title_about">About</string>
+    <string name="setting_about">About Voice Recorder</string>
+    <string name="about_developer_label">Developer</string>
+    <string name="about_developer_value">ed apps</string>
+    <string name="about_version_label">Version</string>
+    <string name="about_credits_label">Open Source Credits</string>
+    <string name="about_credits_desc">This application is built using the following open source libraries and components:</string>
+    
+    <string name="crash_title">Application Crashed</string>
+    <string name="crash_description">An unexpected error occurred. You can restart the app or copy/share the logs below to report the issue.</string>
+    <string name="crash_restart">Restart</string>
+    <string name="crash_share_log">Share Log</string>
+    <string name="crash_device_info">Device Info</string>
+    <string name="crash_stack_trace">Stack Trace</string>
+    <string name="crash_copied">Stack trace copied to clipboard</string>
+    <string name="crash_share_chooser">Share Crash Report</string>
+    <string name="crash_share_subject">Voice Recorder Crash Report</string>
+    <string name="recording_completed">Recording completed: %s</string>
+    <string name="settings_header_general">General</string>
+    <string name="settings_header_recording">Recording Setup</string>
+    <string name="settings_header_support">Support</string>
+    <string name="setting_select_public_folder">Select Public Folder</string>
+    <string name="setting_default_public_folder_path">Default (Music/VoiceRecorder)</string>
+    <string name="folder_custom_fallback">Custom Folder</string>
+</resources>

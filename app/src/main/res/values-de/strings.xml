@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Diktiergerät</string>
+    <string name="title_recorder">Aufnahme</string>
+    <string name="title_recordings">Aufnahmen</string>
+    <string name="title_settings">Einstellungen</string>
+    
+    <string name="state_idle">Bereit zur Aufnahme. Tippen zum Starten.</string>
+    <string name="state_recording">Aufnahme läuft…</string>
+    <string name="state_paused">Aufnahme angehalten</string>
+    
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_rename">Umbenennen</string>
+    <string name="action_share">Teilen</string>
+    
+    <string name="search_hint">Aufnahmen suchen…</string>
+    <string name="no_recordings">Keine Aufnahmen gefunden</string>
+    
+    <string name="dialog_delete_title">Aufnahme löschen?</string>
+    <string name="dialog_delete_msg">Sind Sie sicher, dass Sie \"%s\" löschen möchten? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="dialog_rename_title">Aufnahme umbenennen</string>
+    <string name="rename_input_hint">Name der Aufnahme</string>
+    
+    <string name="permission_required_title">Berechtigungen erforderlich</string>
+    <string name="permission_required_desc">Um Audio aufzunehmen und den Aufnahmestatus im Hintergrund anzuzeigen, benötigt diese App Mikrofon- und Benachrichtigungsberechtigungen.</string>
+    <string name="action_grant">Berechtigungen erteilen</string>
+    
+    <string name="notification_title">Aufnahme läuft</string>
+    <string name="notification_text">Aufnahme im Hintergrund. Tippen, um zur App zurückzukehren.</string>
+    
+    <string name="setting_theme">Design</string>
+    <string name="setting_language">Sprache</string>
+    
+    <string name="theme_system">Systemstandard</string>
+    <string name="theme_light">Hellmodus</string>
+    <string name="theme_dark">Dunkelmodus</string>
+    
+    <string name="lang_system">Systemstandard (Auto)</string>
+    <string name="lang_en">English (Englisch)</string>
+    <string name="lang_es">Español (Spanisch)</string>
+    <string name="lang_fr">Français (Französisch)</string>
+    <string name="lang_de">Deutsch</string>
+    <string name="lang_he">עברית (Hebräisch)</string>
+    
+    <string name="error_record_failed">Aufnahme konnte nicht gestartet werden</string>
+    <string name="error_play_failed">Audio konnte nicht abgespielt werden</string>
+    <string name="error_delete_failed">Aufnahme konnte nicht gelöscht werden</string>
+    <string name="error_rename_failed">Aufnahme konnte nicht umbenannt werden</string>
+    <string name="default_recording_title_prefix">Aufnahme_</string>
+    
+    <string name="setting_format">Aufnahmeformat</string>
+    <string name="setting_quality">Audioqualität</string>
+    <string name="setting_save_location">Speicherort</string>
+    
+    <string name="format_m4a">MPEG-4 / AAC (.m4a)</string>
+    <string name="format_amr">AMR-NB (.3gp)</string>
+    <string name="format_wav">Waveform-Audio (.wav)</string>
+    <string name="format_aac">Advanced Audio Coding (.aac)</string>
+    <string name="format_ogg">Ogg Opus (.ogg)</string>
+    
+    <string name="quality_high">Hohe Qualität (256kbps / 48kHz)</string>
+    <string name="quality_medium">Mittlere Qualität (128kbps / 44.1kHz)</string>
+    <string name="quality_low">Niedrige Qualität (64kbps / 22kHz)</string>
+    
+    <string name="location_private">Privater App-Ordner (Sicher &amp; Isoliert)</string>
+    <string name="location_public">Öffentlicher Musik-Ordner (Für das System freigegeben)</string>
+    
+    <string name="title_about">Über uns</string>
+    <string name="setting_about">Über Diktiergerät</string>
+    <string name="about_developer_label">Entwickler</string>
+    <string name="about_developer_value">ed apps</string>
+    <string name="about_version_label">Version</string>
+    <string name="about_credits_label">Open-Source-Credits</string>
+    <string name="about_credits_desc">Diese Anwendung wurde unter Verwendung der folgenden Open-Source-Bibliotheken und -Komponenten erstellt:</string>
+    
+    <string name="crash_title">Anwendung ist abgestürzt</string>
+    <string name="crash_description">Ein unerwarteter Fehler ist aufgetreten. Sie können die App neu starten oder die Protokolle unten kopieren/teilen, um das Problem zu melden.</string>
+    <string name="crash_restart">Neustart</string>
+    <string name="crash_share_log">Protokoll teilen</string>
+    <string name="crash_device_info">Geräteinformationen</string>
+    <string name="crash_stack_trace">Stapelüberwachung (Stack Trace)</string>
+    <string name="crash_copied">Stapelüberwachung in die Zwischenablage kopiert</string>
+    <string name="crash_share_chooser">Absturzbericht teilen</string>
+    <string name="crash_share_subject">Diktiergerät Absturzbericht</string>
+    <string name="recording_completed">Aufnahme abgeschlossen: %s</string>
+    <string name="settings_header_general">Allgemein</string>
+    <string name="settings_header_recording">Aufnahme-Setup</string>
+    <string name="settings_header_support">Support</string>
+    <string name="setting_select_public_folder">Öffentlichen Ordner auswählen</string>
+    <string name="setting_default_public_folder_path">Standard (Music/VoiceRecorder)</string>
+    <string name="folder_custom_fallback">Benutzerdefinierter Ordner</string>
+</resources>

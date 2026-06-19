@@ -11,8 +11,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -174,7 +179,10 @@ class MainActivity : ComponentActivity() {
             val showBottomBar = tabs.any { it.route == currentRoute }
 
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(FinalTalkTheme.gradients.backgroundGradient),
+                containerColor = Color.Transparent,
                 topBar = {
                     if (showTopBar) {
                         TopAppBar(
@@ -201,7 +209,7 @@ class MainActivity : ComponentActivity() {
                             },
                             colors =
                                 TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                                    containerColor = Color.Transparent,
                                     titleContentColor = MaterialTheme.colorScheme.primary,
                                     navigationIconContentColor = MaterialTheme.colorScheme.primary,
                                 ),
@@ -210,50 +218,64 @@ class MainActivity : ComponentActivity() {
                 },
                 bottomBar = {
                     if (showBottomBar) {
-                        NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            tonalElevation = 8.dp,
-                        ) {
-                            tabs.forEach { tab ->
-                                val selected = currentRoute == tab.route
-                                NavigationBarItem(
-                                    selected = selected,
-                                    onClick = {
-                                        if (currentRoute != tab.route) {
-                                            navController.navigate(tab.route) {
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
-                                                launchSingleTop = true
-                                                restoreState = true
-                                            }
-                                        }
-                                    },
-                                    icon = {
-                                        Icon(
-                                            imageVector = tab.icon,
-                                            contentDescription = stringResource(tab.titleRes),
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
                                         )
-                                    },
-                                    label = { Text(stringResource(tab.titleRes)) },
-                                    colors =
-                                        NavigationBarItemDefaults.colors(
-                                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                                            unselectedIconColor =
-                                                MaterialTheme.colorScheme.onSurface.copy(
-                                                    alpha = 0.6f,
-                                                ),
-                                            unselectedTextColor =
-                                                MaterialTheme.colorScheme.onSurface.copy(
-                                                    alpha = 0.6f,
-                                                ),
-                                            indicatorColor =
-                                                MaterialTheme.colorScheme.primary.copy(
-                                                    alpha = 0.1f,
-                                                ),
-                                        ),
+                                    )
                                 )
+                        ) {
+                            NavigationBar(
+                                containerColor = Color.Transparent,
+                                tonalElevation = 0.dp,
+                            ) {
+                                tabs.forEach { tab ->
+                                    val selected = currentRoute == tab.route
+                                    NavigationBarItem(
+                                        selected = selected,
+                                        onClick = {
+                                            if (currentRoute != tab.route) {
+                                                navController.navigate(tab.route) {
+                                                    popUpTo(navController.graph.findStartDestination().id) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
+                                                }
+                                            }
+                                        },
+                                        icon = {
+                                            Icon(
+                                                imageVector = tab.icon,
+                                                contentDescription = stringResource(tab.titleRes),
+                                            )
+                                        },
+                                        label = { Text(stringResource(tab.titleRes)) },
+                                        colors =
+                                            NavigationBarItemDefaults.colors(
+                                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                                unselectedIconColor =
+                                                    MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.6f,
+                                                    ),
+                                                unselectedTextColor =
+                                                    MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.6f,
+                                                    ),
+                                                indicatorColor =
+                                                    MaterialTheme.colorScheme.primary.copy(
+                                                        alpha = 0.1f,
+                                                    ),
+                                            ),
+                                    )
+                                }
                             }
                         }
                     }

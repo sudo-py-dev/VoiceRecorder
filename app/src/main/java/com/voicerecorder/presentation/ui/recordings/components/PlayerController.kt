@@ -21,8 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +44,10 @@ import androidx.compose.ui.unit.dp
 import com.voicerecorder.domain.model.AudioRecording
 import com.voicerecorder.domain.model.PlayerState
 import com.voicerecorder.presentation.ui.util.FormatUtils
+import com.voicerecorder.presentation.ui.util.glassmorphic
+import com.voicerecorder.presentation.ui.util.gyroParallax
+import com.voicerecorder.presentation.ui.util.neonAura
+import com.voicerecorder.presentation.ui.util.weightlessDrift
 
 @Composable
 fun PlayerController(
@@ -90,129 +92,125 @@ fun PlayerController(
                     if (durationMs > 0) progressMs.toFloat() / durationMs.toFloat() else 0f
                 }
 
-            Card(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+            // Glassmorphic Floating Spaceship Cockpit Container with unified neon glow and motion
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .weightlessDrift(durationMs = 4200, minDrift = -2.5f, maxDrift = 2.5f)
+                    .gyroParallax()
+                    .neonAura(color = MaterialTheme.colorScheme.primary, alpha = 0.18f, radiusFraction = 0.9f)
+                    .glassmorphic(RoundedCornerShape(28.dp), borderWidth = 1.dp)
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
             ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
-                ) {
-                    // Header title & close
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = activeRecording.title,
-                                style =
-                                    MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                    ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+                        // Header title & close
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = activeRecording.title,
+                                    style =
+                                        MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = FontWeight.Bold,
+                                        ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+
+                            IconButton(onClick = onStop) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                )
+                            }
                         }
 
-                        IconButton(onClick = onStop) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            )
-                        }
-                    }
-
-                    // Timeline Slider
-                    Slider(
-                        value = sliderValue.coerceIn(0f, 1f),
-                        onValueChange = {
-                            isUserSeeking = true
-                            localSliderValue = it
-                        },
-                        onValueChangeFinished = {
-                            isUserSeeking = false
-                            val seekPos = (localSliderValue * durationMs).toLong()
-                            onSeek(seekPos)
-                        },
-                        colors =
-                            SliderDefaults.colors(
-                                thumbColor = MaterialTheme.colorScheme.primary,
-                                activeTrackColor = MaterialTheme.colorScheme.primary,
-                                inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                            ),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(24.dp),
-                    )
-
-                    // Duration labels & controls
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        // Current time label
-                        val elapsedText =
-                            FormatUtils.formatDuration(
-                                if (isUserSeeking) (localSliderValue * durationMs).toLong() else progressMs,
-                            )
-                        Text(
-                            text = elapsedText,
-                            style =
-                                MaterialTheme.typography.labelMedium.copy(
-                                    fontFamily = FontFamily.Monospace,
+                        // Timeline Slider
+                        Slider(
+                            value = sliderValue.coerceIn(0f, 1f),
+                            onValueChange = {
+                                isUserSeeking = true
+                                localSliderValue = it
+                            },
+                            onValueChangeFinished = {
+                                isUserSeeking = false
+                                val seekPos = (localSliderValue * durationMs).toLong()
+                                onSeek(seekPos)
+                            },
+                            colors =
+                                SliderDefaults.colors(
+                                    thumbColor = MaterialTheme.colorScheme.primary,
+                                    activeTrackColor = MaterialTheme.colorScheme.primary,
+                                    inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                                 ),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        )
-
-                        // Center Play/Pause button
-                        Box(
                             modifier =
                                 Modifier
-                                    .size(48.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = CircleShape,
-                                    )
-                                    .clip(CircleShape)
-                                    .clickable { onPlayPauseToggle() },
-                            contentAlignment = Alignment.Center,
+                                    .fillMaxWidth()
+                                    .height(24.dp),
+                        )
+
+                        // Duration labels & controls
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp),
+                            // Current time label
+                            val elapsedText =
+                                FormatUtils.formatDuration(
+                                    if (isUserSeeking) (localSliderValue * durationMs).toLong() else progressMs,
+                                )
+                            Text(
+                                text = elapsedText,
+                                style =
+                                    MaterialTheme.typography.labelMedium.copy(
+                                        fontFamily = FontFamily.Monospace,
+                                    ),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+
+                            // Center Play/Pause button
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(48.dp)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            shape = CircleShape,
+                                        )
+                                        .clip(CircleShape)
+                                        .clickable { onPlayPauseToggle() },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+
+                            // Remaining/Total duration label
+                            Text(
+                                text = FormatUtils.formatDuration(durationMs),
+                                style =
+                                    MaterialTheme.typography.labelMedium.copy(
+                                        fontFamily = FontFamily.Monospace,
+                                    ),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             )
                         }
-
-                        // Remaining/Total duration label
-                        Text(
-                            text = FormatUtils.formatDuration(durationMs),
-                            style =
-                                MaterialTheme.typography.labelMedium.copy(
-                                    fontFamily = FontFamily.Monospace,
-                                ),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        )
                     }
                 }
             }
         }
     }
-}

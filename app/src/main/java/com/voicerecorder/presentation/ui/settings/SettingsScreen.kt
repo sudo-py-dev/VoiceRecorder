@@ -24,8 +24,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -53,6 +51,9 @@ import com.voicerecorder.domain.model.Language
 import com.voicerecorder.domain.model.SaveLocation
 import com.voicerecorder.domain.model.ThemeMode
 import com.voicerecorder.presentation.theme.FinalTalkTheme
+import com.voicerecorder.presentation.ui.util.glassmorphic
+import com.voicerecorder.presentation.ui.util.magneticTilt
+import com.voicerecorder.presentation.ui.util.neonAura
 
 @Composable
 fun SettingsScreen(
@@ -176,15 +177,12 @@ fun SettingsScreen(
                 modifier = Modifier.padding(start = 12.dp),
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            // Glassmorphic panel with interactive magnetic touch parallax
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .magneticTilt(maxRotationX = 5f, maxRotationY = 5f)
+                    .glassmorphic(RoundedCornerShape(24.dp), borderWidth = 0.8.dp)
             ) {
                 Column {
                     SettingsDropdownItem(
@@ -290,15 +288,11 @@ fun SettingsScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp),
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .magneticTilt(maxRotationX = 5f, maxRotationY = 5f)
+                    .glassmorphic(RoundedCornerShape(24.dp), borderWidth = 0.8.dp)
             ) {
                 Column {
                     SettingsDropdownItem(
@@ -412,15 +406,11 @@ fun SettingsScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp),
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .magneticTilt(maxRotationX = 5f, maxRotationY = 5f)
+                    .glassmorphic(RoundedCornerShape(24.dp), borderWidth = 0.8.dp)
             ) {
                 SettingsNavigationItem(
                     title = stringResource(R.string.setting_about),

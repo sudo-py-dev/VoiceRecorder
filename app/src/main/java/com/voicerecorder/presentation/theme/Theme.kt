@@ -50,6 +50,9 @@ private val LightColorScheme =
 data class FinalTalkGradients(
     val primaryGradient: Brush,
     val backgroundGradient: Brush,
+    val glassBackground: Brush,
+    val glassBorder: Brush,
+    val neonGlow: Color,
 )
 
 val LocalFinalTalkGradients =
@@ -57,6 +60,9 @@ val LocalFinalTalkGradients =
         FinalTalkGradients(
             primaryGradient = Brush.linearGradient(listOf(DarkPrimary, DarkSecondary)),
             backgroundGradient = Brush.verticalGradient(listOf(DarkBackgroundReal, DarkSurface)),
+            glassBackground = Brush.linearGradient(listOf(Color(0xFF161622).copy(alpha = 0.4f), Color(0xFF0A0A12).copy(alpha = 0.25f))),
+            glassBorder = Brush.linearGradient(listOf(Color.White.copy(alpha = 0.15f), Color.Transparent, Color(0xFF8B5CF6).copy(alpha = 0.2f))),
+            neonGlow = Color(0xFF8B5CF6),
         )
     }
 
@@ -84,7 +90,7 @@ fun FinalTalkTheme(
     val primaryColors = if (darkTheme) DarkPrimaryGradient else LightPrimaryGradient
     val backgroundColors =
         if (darkTheme) {
-            listOf(DarkBackgroundReal, DarkBackgroundReal, DarkSurface)
+            listOf(CosmicSpaceVoid, CosmicNebulaPurple, CosmicNebulaBlue)
         } else {
             listOf(LightBackground, LightBackground, LightSurface)
         }
@@ -93,6 +99,17 @@ fun FinalTalkTheme(
         FinalTalkGradients(
             primaryGradient = Brush.linearGradient(primaryColors),
             backgroundGradient = Brush.verticalGradient(backgroundColors),
+            glassBackground = if (darkTheme) {
+                Brush.linearGradient(listOf(Color(0xFF161622).copy(alpha = 0.45f), Color(0xFF0A0A12).copy(alpha = 0.3f)))
+            } else {
+                Brush.linearGradient(listOf(Color.White.copy(alpha = 0.8f), Color.White.copy(alpha = 0.5f)))
+            },
+            glassBorder = if (darkTheme) {
+                Brush.linearGradient(listOf(Color.White.copy(alpha = 0.22f), Color.Transparent, Color(0xFF8B5CF6).copy(alpha = 0.25f)))
+            } else {
+                Brush.linearGradient(listOf(Color.White.copy(alpha = 0.75f), Color.Transparent, Color(0xFF6D28D9).copy(alpha = 0.2f)))
+            },
+            neonGlow = if (darkTheme) Color(0xFF8B5CF6) else Color(0xFF6D28D9)
         )
 
     val view = LocalView.current

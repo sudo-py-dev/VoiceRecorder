@@ -31,8 +31,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -53,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -60,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.voicerecorder.R
 import com.voicerecorder.domain.model.AudioRecording
@@ -67,6 +67,9 @@ import com.voicerecorder.domain.model.PlayerState
 import com.voicerecorder.presentation.theme.FinalTalkTheme
 import com.voicerecorder.presentation.ui.recordings.components.PlayerController
 import com.voicerecorder.presentation.ui.util.FormatUtils
+import com.voicerecorder.presentation.ui.util.glassmorphic
+import com.voicerecorder.presentation.ui.util.magneticTilt
+import com.voicerecorder.presentation.ui.util.neonAura
 import java.io.File
 
 @Composable
@@ -136,34 +139,35 @@ fun RecordingsScreen(
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
         ) {
-            // Modern Outlined Search Bar
+            // Modern Glassmorphic Search Bar Capsule
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.updateSearchQuery(it) },
                 placeholder = {
                     Text(
                         text = stringResource(R.string.search_hint),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                shape = RoundedCornerShape(16.dp),
+                        .padding(vertical = 12.dp)
+                        .glassmorphic(RoundedCornerShape(20.dp), borderWidth = 0.8.dp),
+                shape = RoundedCornerShape(20.dp),
                 singleLine = true,
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
                     ),
             )
@@ -189,7 +193,7 @@ fun RecordingsScreen(
                         Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(
                         items = recordings,
@@ -224,7 +228,7 @@ fun RecordingsScreen(
                     }
                     // Spacer at end to prevent overlapping with floating player
                     item {
-                        Spacer(modifier = Modifier.height(110.dp))
+                        Spacer(modifier = Modifier.height(130.dp))
                     }
                 }
             }
@@ -280,7 +284,7 @@ fun RecordingsScreen(
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 containerColor = MaterialTheme.colorScheme.surface,
             )
         }
@@ -296,7 +300,7 @@ fun RecordingsScreen(
                         onValueChange = { renameInputName = it },
                         placeholder = { Text(stringResource(R.string.rename_input_hint)) },
                         singleLine = true,
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors =
                             OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -319,7 +323,7 @@ fun RecordingsScreen(
                         Text(stringResource(R.string.action_cancel))
                     }
                 },
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 containerColor = MaterialTheme.colorScheme.surface,
             )
         }
@@ -338,44 +342,33 @@ private fun RecordingItem(
 ) {
     var expandedMenu by remember { mutableStateOf(false) }
 
-    val itemBgColor by animateColorAsState(
-        targetValue =
-            if (isPlaying) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-            } else {
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-            },
-        animationSpec = tween(300),
-        label = "itemBg",
-    )
-
-    val itemBorderModifier =
+    val activeBorderModifier =
         if (isPlaying) {
             Modifier.border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                width = 1.2.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(20.dp),
             )
         } else {
             Modifier
         }
 
-    Card(
+    val glowAlpha = if (isPlaying) 0.15f else 0.0f
+
+    // Glassmorphic item frame with scroll-safe magnetic 3D tilt and glowing aura
+    Box(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .then(itemBorderModifier),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = itemBgColor),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                .magneticTilt(maxRotationX = 6f, maxRotationY = 6f)
+                .then(activeBorderModifier)
+                .neonAura(color = MaterialTheme.colorScheme.primary, alpha = glowAlpha, radiusFraction = 0.85f)
+                .glassmorphic(RoundedCornerShape(20.dp), borderWidth = 0.8.dp)
+                .clickable(onClick = onClick)
+                .padding(16.dp),
     ) {
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onClick)
-                    .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -385,12 +378,11 @@ private fun RecordingItem(
                     Modifier
                         .size(44.dp)
                         .background(
-                            color =
-                                if (isPlaying) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
+                            brush = if (isPlaying) {
+                                Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
+                            } else {
+                                Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
+                            },
                             shape = CircleShape,
                         ),
                 contentAlignment = Alignment.Center,
@@ -429,19 +421,19 @@ private fun RecordingItem(
                     Text(
                         text = FormatUtils.formatDuration(recording.durationMs),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "•",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = FormatUtils.formatFileSize(recording.fileSize),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                     )
                 }
 
@@ -460,7 +452,7 @@ private fun RecordingItem(
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     )
                 }
 

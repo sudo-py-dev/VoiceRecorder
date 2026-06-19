@@ -42,9 +42,9 @@ fun WaveformVisualizer(
         val drawAmplitudes = amplitudes.takeLast(maxBars)
 
         if (drawAmplitudes.isEmpty()) {
-            // Draw a flat center line when idle
+            // Draw a flat center line when idle with a subtle neon glow
             drawRoundRect(
-                color = fallbackColor.copy(alpha = 0.2f),
+                color = fallbackColor.copy(alpha = 0.25f),
                 topLeft = Offset(0f, centerY - 2.dp.toPx()),
                 size = Size(width, 4.dp.toPx()),
                 cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
@@ -56,6 +56,15 @@ fun WaveformVisualizer(
                 // Scale bar height to take up max 85% of canvas height
                 val barHeight = (amplitude * (height * 0.85f)).coerceAtLeast(6.dp.toPx())
 
+                // Draw secondary neon glow behind active bars
+                drawRoundRect(
+                    color = fallbackColor.copy(alpha = 0.08f),
+                    topLeft = Offset(x - barWidthPx / 2f, centerY - (barHeight + 12.dp.toPx()) / 2f),
+                    size = Size(barWidthPx * 2f, barHeight + 12.dp.toPx()),
+                    cornerRadius = CornerRadius(barWidthPx, barWidthPx),
+                )
+
+                // Main bar
                 drawRoundRect(
                     brush = primaryGradient,
                     topLeft = Offset(x, centerY - barHeight / 2f),

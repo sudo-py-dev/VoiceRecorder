@@ -2,23 +2,34 @@ package com.voicerecorder.presentation.ui.recorder
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,11 +47,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -52,6 +67,9 @@ import com.voicerecorder.domain.model.RecordingState
 import com.voicerecorder.presentation.theme.FinalTalkTheme
 import com.voicerecorder.presentation.ui.recorder.components.WaveformVisualizer
 import com.voicerecorder.presentation.ui.util.FormatUtils
+import com.voicerecorder.presentation.ui.util.glassmorphic
+import com.voicerecorder.presentation.ui.util.neonAura
+import com.voicerecorder.presentation.ui.util.weightlessDrift
 
 @Composable
 fun RecorderScreen(
@@ -90,10 +108,12 @@ fun RecorderScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Status Label
+            // Floating Status Label
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = 20.dp),
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .weightlessDrift(durationMs = 4000, minDrift = -3f, maxDrift = 3f),
             ) {
                 val statusText =
                     when (state) {
@@ -105,17 +125,24 @@ fun RecorderScreen(
                     when (state) {
                         is RecordingState.Recording -> MaterialTheme.colorScheme.primary
                         is RecordingState.Paused -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                        else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                     }
 
-                Text(
-                    text = statusText,
-                    style =
-                        MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Medium,
-                        ),
-                    color = statusColor,
-                )
+                Box(
+                    modifier = Modifier
+                        .neonAura(color = statusColor, alpha = 0.12f, radiusFraction = 0.8f)
+                        .glassmorphic(RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = statusText,
+                        style =
+                            MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        color = statusColor,
+                    )
+                }
             }
 
             // Waveform Display Container
@@ -141,65 +168,119 @@ fun RecorderScreen(
                         else -> 0L
                     }
 
-                Text(
-                    text = FormatUtils.formatDurationWithDeciseconds(durationMs),
-                    style =
-                        MaterialTheme.typography.displayLarge.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 52.sp,
+                // Floating timer text with glowing neon backdrop
+                Box(
+                    modifier = Modifier
+                        .weightlessDrift(durationMs = 3200, minDrift = -4f, maxDrift = 4f)
+                        .neonAura(
+                            color = if (state is RecordingState.Recording) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            alpha = 0.18f,
+                            radiusFraction = 0.9f
                         ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = FormatUtils.formatDurationWithDeciseconds(durationMs),
+                        style =
+                            MaterialTheme.typography.displayLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 56.sp,
+                                letterSpacing = (-1).sp
+                            ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                // Gravity Anchor / Orbital Controls Arrangement
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(140.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    // Pause/Resume Option Button
-                    AnimatedVisibility(
-                        visible = state !is RecordingState.Idle,
-                        enter = fadeIn() + scaleIn(),
-                        exit = fadeOut() + scaleOut(),
+                    val orbitalDistance = 96.dp
+                    
+                    val pauseOffsetVal by animateDpAsState(
+                        targetValue = if (state !is RecordingState.Idle) -orbitalDistance else 0.dp,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
+                        label = "pauseOffset"
+                    )
+                    
+                    val stopOffsetVal by animateDpAsState(
+                        targetValue = if (state !is RecordingState.Idle) orbitalDistance else 0.dp,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
+                        label = "stopOffset"
+                    )
+                    
+                    val orbitalAlpha by animateFloatAsState(
+                        targetValue = if (state !is RecordingState.Idle) 1f else 0f,
+                        animationSpec = tween(400),
+                        label = "orbitalAlpha"
+                    )
+
+                    // Orbital: Pause / Resume Button
+                    Box(
+                        modifier = Modifier
+                            .offset(x = pauseOffsetVal)
+                            .graphicsLayer {
+                                alpha = orbitalAlpha
+                                scaleX = orbitalAlpha
+                                scaleY = orbitalAlpha
+                            }
+                            .weightlessDrift(durationMs = 2800, minDrift = -3f, maxDrift = 3f)
+                            .size(56.dp)
+                            .glassmorphic(CircleShape)
+                            .clip(CircleShape)
+                            .clickable(enabled = state !is RecordingState.Idle) {
+                                if (state is RecordingState.Recording) {
+                                    viewModel.pauseRecording(context)
+                                } else if (state is RecordingState.Paused) {
+                                    viewModel.resumeRecording(context)
+                                }
+                            },
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(56.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        shape = CircleShape,
-                                    )
-                                    .clip(CircleShape)
-                                    .clickable {
-                                        if (state is RecordingState.Recording) {
-                                            viewModel.pauseRecording(context)
-                                        } else if (state is RecordingState.Paused) {
-                                            viewModel.resumeRecording(context)
-                                        }
+                        Icon(
+                            imageVector =
+                                if (state is RecordingState.Recording) {
+                                    Icons.Default.Pause
+                                } else {
+                                    Icons.Default.PlayArrow
                                     },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector =
-                                    if (state is RecordingState.Recording) {
-                                        Icons.Default.Pause
-                                    } else {
-                                        Icons.Default.PlayArrow
-                                    },
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(28.dp),
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(32.dp))
+                    // Orbital: Stop Button
+                    Box(
+                        modifier = Modifier
+                            .offset(x = stopOffsetVal)
+                            .graphicsLayer {
+                                alpha = orbitalAlpha
+                                scaleX = orbitalAlpha
+                                scaleY = orbitalAlpha
+                            }
+                            .weightlessDrift(durationMs = 3200, minDrift = -3f, maxDrift = 3f)
+                            .size(56.dp)
+                            .glassmorphic(CircleShape)
+                            .clip(CircleShape)
+                            .clickable(enabled = state !is RecordingState.Idle) {
+                                viewModel.stopRecording(context)
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Stop,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
 
-                    // Animated Core Record Button
+                    // Central Gravity Core: Pulsating Record Button
                     RecordButton(
                         isRecording = state is RecordingState.Recording,
                         onClick = {
@@ -210,37 +291,6 @@ fun RecorderScreen(
                             }
                         },
                     )
-
-                    Spacer(modifier = Modifier.width(32.dp))
-
-                    // Stop Option Button
-                    AnimatedVisibility(
-                        visible = state !is RecordingState.Idle,
-                        enter = fadeIn() + scaleIn(),
-                        exit = fadeOut() + scaleOut(),
-                    ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(56.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        shape = CircleShape,
-                                    )
-                                    .clip(CircleShape)
-                                    .clickable {
-                                        viewModel.stopRecording(context)
-                                    },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Stop,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -254,66 +304,104 @@ private fun RecordButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    // Animate size and shape based on state
-    val buttonSize by animateDpAsState(
-        targetValue = if (isRecording) 76.dp else 84.dp,
-        animationSpec = tween(300),
-        label = "size",
+    // Heartbeat pulse animation for the outer glow when recording
+    val infiniteTransition = rememberInfiniteTransition(label = "RecordPulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseScale"
+    )
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseAlpha"
     )
 
-    // Dynamic corner radius morphing circle to square
+    // Shape and size animations morphing from circle to rounded square
     val cornerPercent by animateDpAsState(
-        targetValue = if (isRecording) 16.dp else 42.dp,
-        animationSpec = tween(300),
-        label = "shape",
+        targetValue = if (isRecording) 14.dp else 34.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMedium),
+        label = "shape"
+    )
+    
+    val buttonSize by animateDpAsState(
+        targetValue = if (isRecording) 44.dp else 60.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMedium),
+        label = "size"
     )
 
-    val color by animateColorAsState(
-        targetValue = if (isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-        animationSpec = tween(300),
-        label = "color",
-    )
-
-    // Smoothly animate inner icon size and corner shape
-    val innerSize by animateDpAsState(
-        targetValue = if (isRecording) 24.dp else 28.dp,
-        animationSpec = tween(300),
-        label = "innerSize",
-    )
-    val innerCorner by animateDpAsState(
-        targetValue = if (isRecording) 4.dp else 14.dp,
-        animationSpec = tween(300),
-        label = "innerCorner",
-    )
+    val colorScheme = MaterialTheme.colorScheme
 
     Box(
-        modifier =
-            Modifier
-                .size(96.dp),
-        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(100.dp)
+            .weightlessDrift(durationMs = 4000, minDrift = -2f, maxDrift = 2f),
+        contentAlignment = Alignment.Center
     ) {
-        // Main button
+        // Outer pulsing neon aura
+        if (isRecording) {
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .graphicsLayer {
+                        scaleX = pulseScale
+                        scaleY = pulseScale
+                        alpha = pulseAlpha
+                    }
+                    .neonAura(color = colorScheme.error, alpha = 0.35f, radiusFraction = 0.95f)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .neonAura(color = colorScheme.primary, alpha = 0.15f, radiusFraction = 0.95f)
+            )
+        }
+
+        // Solid Outer Ring (mechanical boundary)
         Box(
-            modifier =
-                Modifier
+            modifier = Modifier
+                .size(80.dp)
+                .border(
+                    width = 4.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            colorScheme.onBackground.copy(alpha = 0.25f),
+                            colorScheme.onBackground.copy(alpha = 0.05f)
+                        )
+                    ),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            // Morphing Inner Core
+            Box(
+                modifier = Modifier
                     .size(buttonSize)
                     .background(
-                        color = color,
-                        shape = RoundedCornerShape(cornerPercent),
+                        brush = Brush.linearGradient(
+                            colors = if (isRecording) {
+                                listOf(colorScheme.error, Color(0xFFEF4444))
+                            } else {
+                                listOf(colorScheme.primary, colorScheme.secondary)
+                            }
+                        ),
+                        shape = RoundedCornerShape(cornerPercent)
                     )
                     .clip(RoundedCornerShape(cornerPercent))
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null,
-                        onClick = onClick,
-                    ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(innerSize)
-                        .background(Color.White, RoundedCornerShape(innerCorner)),
+                        onClick = onClick
+                    )
             )
         }
     }

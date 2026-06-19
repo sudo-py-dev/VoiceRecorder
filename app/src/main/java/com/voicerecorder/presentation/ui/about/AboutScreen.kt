@@ -20,8 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,12 +27,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.voicerecorder.R
 import com.voicerecorder.presentation.theme.FinalTalkTheme
+import com.voicerecorder.presentation.ui.util.glassmorphic
+import com.voicerecorder.presentation.ui.util.magneticTilt
+import com.voicerecorder.presentation.ui.util.neonAura
+import com.voicerecorder.presentation.ui.util.weightlessDrift
 
 @Composable
 fun AboutScreen(onBackClick: () -> Unit) {
@@ -57,15 +60,22 @@ fun AboutScreen(onBackClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            // Header Branding Section
+            // Header Branding Section (floating weightless space capsule logo)
             Spacer(modifier = Modifier.height(10.dp))
 
             Box(
                 modifier =
                     Modifier
-                        .size(90.dp)
+                        .size(100.dp)
+                        .weightlessDrift(durationMs = 3400, minDrift = -6f, maxDrift = 6f)
+                        .neonAura(color = MaterialTheme.colorScheme.primary, alpha = 0.25f, radiusFraction = 0.9f)
                         .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.02f)
+                                )
+                            ),
                             shape = CircleShape,
                         ),
                 contentAlignment = Alignment.Center,
@@ -73,7 +83,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Mic,
                     contentDescription = stringResource(R.string.app_name),
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(54.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -100,16 +110,12 @@ fun AboutScreen(onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Developer Information Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            // Developer Information Card (glassmorphic + magnetic tilt)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .magneticTilt(maxRotationX = 6f, maxRotationY = 6f)
+                    .glassmorphic(RoundedCornerShape(20.dp), borderWidth = 0.8.dp)
             ) {
                 Row(
                     modifier =
@@ -139,16 +145,12 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Open Source Credits Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            // Open Source Credits Card (glassmorphic + magnetic tilt)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .magneticTilt(maxRotationX = 6f, maxRotationY = 6f)
+                    .glassmorphic(RoundedCornerShape(20.dp), borderWidth = 0.8.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
@@ -166,7 +168,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
                     Text(
                         text = stringResource(R.string.about_credits_desc),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                     )
 
                     HorizontalDivider(
